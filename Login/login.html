@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海大拍賣系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 440px;
+            padding: 48px 40px;
+        }
+
+        .logo {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 40px;
+            font-weight: 500;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 60px;
+            color: #1a1a1a;
+            letter-spacing: 2px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        input[type="email"],
+        input[type="password"],
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        input[type="text"]:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input.error {
+            border-color: #ef4444;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: #000;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #333;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 28px 0;
+            color: #999;
+            font-size: 13px;
+            position: relative;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 42%;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        .divider::before {
+            left: 0;
+        }
+
+        .divider::after {
+            right: 0;
+        }
+
+        .btn-google {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s;
+            color: #444;
+            font-weight: 500;
+        }
+
+        .btn-google:hover {
+            background: #f8f8f8;
+            border-color: #d0d0d0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .google-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .terms {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 28px;
+            line-height: 1.6;
+        }
+
+        .terms a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .terms a:hover {
+            text-decoration: underline;
+        }
+
+        .toggle-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .toggle-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .toggle-link a:hover {
+            text-decoration: underline;
+        }
+
+        .success-message {
+            background: #10b981;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dashboard {
+            display: none;
+        }
+
+        .dashboard.show {
+            display: block;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .user-info {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .user-email {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .btn-logout {
+            padding: 8px 16px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #dc2626;
+        }
+
+        .auction-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .auction-item {
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .auction-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .auction-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+
+        .auction-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .auction-time {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .password-toggle {
+            position: relative;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            font-size: 12px;
+            padding: 4px 8px;
+        }
+
+        .password-toggle-btn:hover {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">Auth</div>
+        
+        <h1>海大拍賣系統</h1>
+        
+        <!-- 註冊/登入表單 -->
+        <div id="authForm">
+            <div class="success-message" id="successMessage"></div>
+            
+            <h2 class="page-title" id="formTitle">Create an account</h2>
+            <p class="subtitle" id="formSubtitle">Enter your email to sign up for this app</p>
+            
+            <form id="emailForm">
+                <div class="input-group">
+                    <input type="email" id="emailInput" placeholder="email@domain.com" required>
+                    <div class="error-message" id="emailError">請輸入有效的Email地址</div>
+                </div>
+                
+                <div class="input-group" id="passwordGroup" style="display: none;">
+                    <div class="password-toggle">
+                        <input type="password" id="passwordInput" placeholder="請輸入密碼（至少6個字元）">
+                        <button type="button" class="password-toggle-btn" id="togglePassword">顯示</button>
+                    </div>
+                    <div class="error-message" id="passwordError">密碼至少需要6個字元</div>
+                </div>
+                
+                <button type="submit" class="btn-primary" id="submitBtn">Sign up with email</button>
+            </form>
+            
+            <div class="divider">or continue with</div>
+            
+            <button class="btn-google" id="googleBtn">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Google
+            </button>
+            
+            <p class="terms">
+                By clicking continue, you agree to our <a href="#" id="termsLink">Terms of Service</a> and <a href="#" id="privacyLink">Privacy Policy</a>
+            </p>
+            
+            <div class="toggle-link">
+                <span id="toggleText">Already have an account? <a id="toggleMode">Sign in</a></span>
+            </div>
+        </div>
+
+        <!-- 儀表板 -->
+        <div id="dashboard" class="dashboard">
+            <div class="dashboard-header">
+                <div class="user-info">
+                    歡迎回來！<br>
+                    <span class="user-email" id="userEmail"></span>
+                </div>
+                <button class="btn-logout" id="logoutBtn">登出</button>
+            </div>
+
+            <h2 class="page-title">熱門拍賣商品</h2>
+            <div class="auction-list" id="auctionList"></div>
+        </div>
+    </div>
+
+    <script>
+        // 狀態管理
+        let isSignUpMode = true;
+        let currentUser = null;
+        let users = {}; // 模擬用戶資料庫
+
+        // DOM 元素
+        const authForm = document.getElementById('authForm');
+        const dashboard = document.getElementById('dashboard');
+        const emailForm = document.getElementById('emailForm');
+        const emailInput = document.getElementById('emailInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const passwordGroup = document.getElementById('passwordGroup');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+        const submitBtn = document.getElementById('submitBtn');
+        const toggleMode = document.getElementById('toggleMode');
+        const toggleText = document.getElementById('toggleText');
+        const formTitle = document.getElementById('formTitle');
+        const formSubtitle = document.getElementById('formSubtitle');
+        const successMessage = document.getElementById('successMessage');
+        const googleBtn = document.getElementById('googleBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const userEmail = document.getElementById('userEmail');
+        const auctionList = document.getElementById('auctionList');
+        const togglePassword = document.getElementById('togglePassword');
+
+        // 模擬拍賣商品資料
+        const auctionItems = [
+            { id: 1, title: 'iPhone 15 Pro Max', price: 'NT$ 35,000', time: '剩餘 2小時 30分鐘' },
+            { id: 2, title: 'MacBook Pro M3', price: 'NT$ 55,000', time: '剩餘 1小時 15分鐘' },
+            { id: 3, title: 'Sony PS5', price: 'NT$ 12,000', time: '剩餘 45分鐘' },
+            { id: 4, title: 'iPad Air 2024', price: 'NT$ 18,000', time: '剩餘 3小時 20分鐘' },
+            { id: 5, title: 'AirPods Pro', price: 'NT$ 6,500', time: '剩餘 1小時 50分鐘' }
+        ];
+
+        // Email 驗證
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // 密碼驗證
+        function validatePassword(password) {
+            return password.length >= 6;
+        }
+
+        // 顯示錯誤訊息
+        function showError(element, errorElement) {
+            element.classList.add('error');
+            errorElement.classList.add('show');
+        }
+
+        // 隱藏錯誤訊息
+        function hideError(element, errorElement) {
+            element.classList.remove('error');
+            errorElement.classList.remove('show');
+        }
+
+        // 顯示成功訊息
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.classList.add('show');
+            setTimeout(() => {
+                successMessage.classList.remove('show');
+            }, 3000);
+        }
+
+        // 切換註冊/登入模式
+        toggleMode.addEventListener('click', () => {
+            isSignUpMode = !isSignUpMode;
+            
+            if (isSignUpMode) {
+                formTitle.textContent = 'Create an account';
+                formSubtitle.textContent = 'Enter your email to sign up for this app';
+                submitBtn.textContent = 'Sign up with email';
+                toggleText.innerHTML = 'Already have an account? <a id="toggleMode">Sign in</a>';
+            } else {
+                formTitle.textContent = 'Welcome back';
+                formSubtitle.textContent = 'Enter your email to sign in to your account';
+                submitBtn.textContent = 'Sign in with email';
+                toggleText.innerHTML = "Don't have an account? <a id='toggleMode'>Sign up</a>";
+            }
+            
+            passwordGroup.style.display = 'none';
+            emailInput.value = '';
+            passwordInput.value = '';
+            hideError(emailInput, emailError);
+            hideError(passwordInput, passwordError);
+            
+            // 重新綁定事件
+            document.getElementById('toggleMode').addEventListener('click', arguments.callee);
+        });
+
+        // 密碼顯示/隱藏切換
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            togglePassword.textContent = type === 'password' ? '顯示' : '隱藏';
+        });
+
+        // Email 輸入驗證
+        emailInput.addEventListener('input', () => {
+            hideError(emailInput, emailError);
+        });
+
+        emailInput.addEventListener('blur', () => {
+            if (emailInput.value && !validateEmail(emailInput.value)) {
+                showError(emailInput, emailError);
+            }
+        });
+
+        // 密碼輸入驗證
+        passwordInput.addEventListener('input', () => {
+            hideError(passwordInput, passwordError);
+        });
+
+        // 表單提交
+        emailForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = emailInput.value.trim();
+            
+            // 驗證 Email
+            if (!validateEmail(email)) {
+                showError(emailInput, emailError);
+                return;
+            }
+            
+            // 如果密碼欄位已顯示，驗證密碼
+            if (passwordGroup.style.display !== 'none') {
+                const password = passwordInput.value;
+                
+                if (!validatePassword(password)) {
+                    showError(passwordInput, passwordError);
+                    return;
+                }
+                
+                // 執行註冊或登入
+                if (isSignUpMode) {
+                    // 註冊
+                    if (users[email]) {
+                        emailError.textContent = '此Email已被註冊';
+                        showError(emailInput, emailError);
+                        emailError.textContent = '請輸入有效的Email地址';
+                        return;
+                    }
+                    
+                    users[email] = { password: password };
+                    showSuccess('註冊成功！正在登入...');
+                    
+                    setTimeout(() => {
+                        login(email);
+                    }, 1500);
+                } else {
+                    // 登入
+                    if (!users[email]) {
+                        emailError.textContent = '此Email尚未註冊';
+                        showError(emailInput, emailError);
+                        emailError.textContent = '請輸入有效的Email地址';
+                        return;
+                    }
+                    
+                    if (users[email].password !== password) {
+                        passwordError.textContent = '密碼錯誤';
+                        showError(passwordInput, passwordError);
+                        passwordError.textContent = '密碼至少需要6個字元';
+                        return;
+                    }
+                    
+                    showSuccess('登入成功！');
+                    setTimeout(() => {
+                        login(email);
+                    }, 1000);
+                }
+            } else {
+                // 顯示密碼輸入欄位
+                passwordGroup.style.display = 'block';
+                passwordInput.focus();
+            }
+        });
+
+        // Google 登入
+        googleBtn.addEventListener('click', () => {
+            showSuccess('使用Google登入成功！');
+            setTimeout(() => {
+                login('google.user@gmail.com');
+            }, 1000);
+        });
+
+        // 登入函數
+        function login(email) {
+            currentUser = email;
+            authForm.classList.remove('show');
+            authForm.style.display = 'none';
+            dashboard.classList.add('show');
+            userEmail.textContent = email;
+            renderAuctionItems();
+        }
+
+        // 登出
+        logoutBtn.addEventListener('click', () => {
+            currentUser = null;
+            dashboard.classList.remove('show');
+            authForm.style.display = 'block';
+            emailInput.value = '';
+            passwordInput.value = '';
+            passwordGroup.style.display = 'none';
+            hideError(emailInput, emailError);
+            hideError(passwordInput, passwordError);
+            showSuccess('已成功登出！');
+        });
+
+        // 渲染拍賣商品
+        function renderAuctionItems() {
+            auctionList.innerHTML = auctionItems.map(item => `
+                <div class="auction-item">
+                    <div class="auction-title">${item.title}</div>
+                    <div class="auction-price">${item.price}</div>
+                    <div class="auction-time">⏱ ${item.time}</div>
+                </div>
+            `).join('');
+        }
+
+        // Terms of Service 連結
+        document.getElementById('termsLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('服務條款\n\n1. 用戶需年滿18歲\n2. 禁止拍賣違法物品\n3. 交易需遵守平台規範\n4. 保護個人資料安全');
+        });
+
+        // Privacy Policy 連結
+        document.getElementById('privacyLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('隱私政策\n\n我們重視您的隱私：\n1. 收集必要的個人資訊\n2. 不會出售用戶資料\n3. 使用加密技術保護資料\n4. 遵守相關法律規範');
+        });
+    </script>
+</body>
+</html>
