@@ -23,15 +23,21 @@ itemCards.forEach(card => {
         alert('商品詳情頁面開發中！');
     });
 });
-
-// Search 按鈕
-document.querySelector('.search-btn').addEventListener('click', () => {
-    const searchQuery = prompt('請輸入搜尋關鍵字：');
+function searchItems() {
+    const searchQuery = document.querySelector('.search-bar').value.trim();
     if (searchQuery) {
         alert(`搜尋功能開發中！\n您搜尋的是：${searchQuery}`);
     }
+}
+// Search 按鈕
+document.querySelector('.search-btn').addEventListener('click', () => {
+    searchItems();
 });
-
+document.querySelector('.search-bar').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        searchItems();
+    }
+});
 // Filter 按鈕
 document.querySelector('.filter-btn').addEventListener('click', () => {
     alert('篩選功能開發中！\n即將推出：\n- 價格範圍\n- 分類篩選\n- 結束時間\n- 商品狀態');
