@@ -32,6 +32,15 @@ const auctionItems = [
 { id: 5, title: 'AirPods Pro', price: 'NT$ 6,500', time: '剩餘 1小時 50分鐘' }
 ];
 
+const navItems = document.querySelectorAll('.nav-item');
+navItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+        navItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+    });
+});
+
 // Email 驗證
 function validateEmail(email) {
 const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
