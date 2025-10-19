@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller's Listing - 海大拍賣系統</title>
+    <link rel="stylesheet" href="seller.css"> 
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">海大拍賣系統</div>
+        
+        <div class="nav-section">
+            <div class="nav-title">Discover</div>
+            <a href="../HomePage/homePage.html" class="nav-item" onclick="window.location.href='../HomePage/homePage.html'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Home
+            </a>
+            <a href="../Browse/browse.html" class="nav-item" onclick="window.location.href='../Browse/browse.html'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                Browse
+            </a>
+            <a href="#" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+                Cart
+            </a>
+            <a href="../Login/userProfile.html" class="nav-item active" onclick="window.location.href='../Login/userProfile.html'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="8" r="4"></circle>
+                    <path d="M4 20c0-4 4-7 8-7s8 3 8 7"></path>
+                </svg>
+                Account
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <header class="upload-header">
+            <h1>Upload New Auction Item</h1>
+            <p>Please fill in the details below to start auctioning your item.</p>
+        </header>
+
+        <form class="upload-form" id="itemUploadForm">
+            <div class="form-group">
+                <label for="itemImage">Item Images (Max 5)</label>
+                <input type="file" id="itemImage" name="itemImage" accept="image/*" multiple required>
+            </div>
+            
+            <div class="form-group">
+                <label for="itemName">Item Name</label>
+                <input type="text" id="itemName" name="itemName" placeholder="Enter item name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="itemDescription">Item Description</label>
+                <textarea id="itemDescription" name="itemDescription" rows="5" placeholder="Please describe the item's condition and features" required></textarea>
+            </div>
+
+            <h2>Auction Details</h2>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="startPrice">Starting Price (NTD)</label>
+                    <input type="number" id="startPrice" name="startPrice" placeholder="e.g.: 100" min="1" step="1" required>
+                    <span class="currency-label">NTD</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="reservePrice">Reserve Price (Optional) (NTD)</label>
+                    <input type="number" id="reservePrice" name="reservePrice" placeholder="e.g.: 500" min="1" step="1">
+                    <span class="currency-label">NTD</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="duration">Auction Duration (Days)</label>
+                <input type="number" id="duration" name="duration" placeholder="e.g.: 7" min="1" max="30" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="category">Item Category</label>
+                <select id="category" name="category" required>
+                    <option value="" disabled selected>Please select a category</option>
+                    <option value="electronics">Electronics</option>
+                    <option value="books">Books</option>
+                    <option value="fashion">Apparel & Accessories</option>
+                    <option value="collectibles">Collectibles</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-submit">Start Auction</button>
+
+        </form>
+    </div>
+
+    <script src="seller.js"></script>
+</body>
+</html>
