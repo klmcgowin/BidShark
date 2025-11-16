@@ -1,3 +1,19 @@
+import * as sideBar from './sideBar.js';
+fetch('sideBar.html')
+    .then(res => res.text())
+    .then(html => {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.innerHTML = html;
+        const links = sidebar.querySelectorAll('a.nav-item');
+        const currentPage = window.location.pathname.split('/').pop();
+        links.forEach(link => {
+            const linkPage = link.getAttribute('href');
+            if (linkPage === currentPage) {
+                link.classList.add('active');
+            }
+        });
+        sideBar.collapse();
+    });
 // 購物車資料（使用記憶體儲存）
 let cartData = [];
 let wonItems = []; // 儲存競標成功的商品

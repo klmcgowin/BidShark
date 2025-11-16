@@ -10,7 +10,26 @@
     overflow-y: auto;
     z-index: 1000
 }
-
+.sidebar.collapsed {
+    width: 60px;
+}
+.toggle-btn {
+    position: fixed;
+    left: 190px;
+    top: 20px;
+    font-size: 24px;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    cursor: pointer;
+    z-index: 2000;
+}
+.toggle-btn.collapsed {
+    left: 10px;
+}
+.everything.collapsed{
+    display: none;
+}
 .lego {
     font-size: 18px;
     font-weight: 700;
