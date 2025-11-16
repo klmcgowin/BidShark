@@ -3,13 +3,13 @@ import * as path from 'path';
 import bodyParser from 'body-parser';
 import mainRouter from './Router';
 import session from "express-session";
-
+import MongoStore from "connect-mongo";
+import {client} from "./ConnectToDB"
 const app = express();
 const PORT = 3000;
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../public')));
-app.use('/api', mainRouter);
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/homePage.html'));
@@ -17,15 +17,22 @@ app.get('/', (req, res) => {
 
 app.use(
     session({
-        secret: "your-secret-key",
+        secret: "8f3b26fd27e28abf1750c65f2a27dfe94ac3b2b6a9ec55fc85d1bfbe47dbf0c3",
         resave: false,
         saveUninitialized: false,
+        store: MongoStore.create({
+            client,
+            dbName: "BidShark",
+            collectionName: "sessions",
+            ttl: 24 * 60 * 60,
+            stringify: false,
+        }),
         cookie: {
-            maxAge: 1000 * 60 * 60,
-            secure: false,
             httpOnly: true,
+            maxAge: 1000 * 60 * 60,
         },
     })
 );
 
+app.use('/api', mainRouter);
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

@@ -1,8 +1,9 @@
 {
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "connect-mongo": "^5.1.0",
     "express": "^5.1.0",
-    "mongodb": "^7.0.0"
+    "mongodb": "^6.9.0"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
