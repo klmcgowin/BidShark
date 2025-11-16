@@ -1,6 +1,4 @@
-let isSignUpMode = true;
-
-
+import * as sideBar from './sideBar.js';
 fetch('sideBar.html')
     .then(res => res.text())
     .then(html => {
@@ -14,9 +12,10 @@ fetch('sideBar.html')
                 link.classList.add('active');
             }
         });
+        sideBar.collapse();
     });
 
-
+let isSignUpMode = true;
 function validateEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);

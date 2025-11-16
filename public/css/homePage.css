@@ -281,21 +281,3 @@ body {
 .more-time {
     color: #999;
 }
-
-/* 響應式設計 */
-@media (max-width: 768px) {
-    .sidebar {
-        width: 200px;
-    }
-
-    .main-content {
-        margin-left: 200px;
-        padding: 20px;
-    }
-
-    .recommended-grid,
-    .more-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 15px;
-    }
-}
