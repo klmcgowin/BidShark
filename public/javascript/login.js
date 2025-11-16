@@ -21,7 +21,36 @@ function validateEmail(email) {
     return re.test(email);
 }
 
-// 密碼驗證
+document.getElementById('toggleMode').addEventListener('click', () => {
+    if (isSignUpMode) {
+        document.getElementById('submitBtn').textContent = 'Sign in with email';
+        document.getElementById('toggleText').firstChild.textContent = "Don't have an account? ";
+        document.getElementById('toggleMode').textContent = "Sign up";
+    } else {
+        document.getElementById('submitBtn').textContent = 'Sign up with email';
+        document.getElementById('toggleText').firstChild.textContent = "Already have an account? ";
+        document.getElementById('toggleMode').textContent = "Sign in";
+    }
+    isSignUpMode = !isSignUpMode;
+});
+document.getElementById('submitBtn').addEventListener('click', () => {
+    if (isSignUpMode) {
+        let email = document.getElementById('emailInput').textContent;
+        if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            
+            fetch('api/auth/SignUp', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email: document.getElementById('emailInput')})
+            })
+                .then(response => response.json())
+                .then(data => console.log('POST Response:', data))
+                .catch(err => console.error(err));
+        }else{
+            alert('Please enter a valid email address');
+        }
+    }
+})
 function validatePassword(password) {
     return password.length >= 6;
 }
