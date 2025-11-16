@@ -161,14 +161,14 @@ emailForm.addEventListener('submit', (e) => {
                 .then(data => {
                     if (data.status === 'success') {
                         showSuccess('註冊成功！正在登入...');
+                        setTimeout(() => {
+                            login(email);
+                        }, 1500);
                     } else {
                         alert(data.error || data);
                     }
                 })
                 .catch(err => alert(err));
-            setTimeout(() => {
-                login(email);
-                }, 1500);
         } else {
             fetch('api/auth/login',{
                 method: 'POST',
@@ -179,13 +179,13 @@ emailForm.addEventListener('submit', (e) => {
                 .then(data => {
                     if (data.status === 'success') {
                         showSuccess('登入成功...');
+                        setTimeout(() => {
+                            login(email);
+                        }, 1000);
                     } else {
                         alert(data.error || data);
                     }
                 })
-            setTimeout(() => {
-                login(email);
-            }, 1000);
         }
     } else {
         // 顯示密碼輸入欄位
