@@ -19,7 +19,7 @@ loginRouter.post('/SignUp',async (req: Request, res: Response) => {
             return res.status(409).json({ error: 'User already exists!' });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const img = fs.readFileSync('../public/default-profile.svg', { encoding: 'base64' })
+        const img = fs.readFileSync('public/default-profile.svg', { encoding: 'base64' })
         await users.insertOne({
             email: email,
             password: hashedPassword,
