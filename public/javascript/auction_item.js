@@ -21,12 +21,48 @@ document.addEventListener("DOMContentLoaded", () => {
   const highestBidDisplay = document.getElementById("highestBid");
   const notice = document.getElementById("bidNotice");
   const buyoutBtn = document.getElementById("buyoutBtn");
+  const timeRemainingDisplay = document.getElementById("timeRemaining");
 
-  // 從頁面文字讀取實際金額，例如 "$110,000"
   let highestBid = parseInt(
     highestBidDisplay.textContent.replace(/[^0-9]/g, "")
   );
   if (isNaN(highestBid)) highestBid = 0; // 預防讀取錯誤
+
+  // 假設從後端拿到的結束時間
+  const auctionEndTime = new Date("2025-12-31T23:59:59");
+
+  function updateCountdown() {
+    const now = new Date();
+    const diff = auctionEndTime - now;
+
+    if (diff <= 0) {
+      timeRemainingDisplay.textContent = "Auction Ended";
+      timeRemainingDisplay.style.color = "#e63946";
+      clearInterval(timer);
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+    // 即將結束 < 10 minutes → 顯示橘色警告
+    if (diff < 10 * 60 * 1000) {
+      timeRemainingDisplay.style.color = "#ff8c00";
+    } else {
+      timeRemainingDisplay.style.color = "#000";
+    }
+
+    let result = "";
+
+    if (days > 0) result += `${days}d `;
+    result += `${hours}h ${minutes}m`;
+
+    timeRemainingDisplay.textContent = result.trim();
+  }
+
+  const timer = setInterval(updateCountdown, 500); // 每 0.5 秒更新
+  updateCountdown(); // 初次執行立即顯示
 
   // 點擊出價按鈕
   placeBidBtn.addEventListener("click", () => {
