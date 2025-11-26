@@ -14,7 +14,7 @@ loginRouter.post('/SignUp',async (req: Request, res: Response) => {
         }
         const db = await connectDB();
         const users = db.collection('Users');
-        const existingUser = await users.findOne({ email });
+        const existingUser = await users.findOne({ email: email });
         if (existingUser) {
             return res.status(409).json({ error: 'User already exists!' });
         }
@@ -26,7 +26,7 @@ loginRouter.post('/SignUp',async (req: Request, res: Response) => {
             name: email.split("@")[0],
             image:  img
         });
-        const user = await users.findOne({ email });
+        const user = await users.findOne({ email: email });
         req.session.user = {
             id: user._id.toString(),
             email: user.email,
