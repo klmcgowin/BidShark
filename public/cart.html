@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart</title>
+    <link rel="stylesheet" href="css/cart.css">
+</head>
+<body>
+
+  <!-- 側邊欄 -->
+    <div id="sidebar"></div>
+    <div class="main-content">
+        <!-- 搜尋列 -->
+        <div class="top-menu">
+            <input class="search-bar" type="text" placeholder="Search items in cart...">
+            <div class="wrapper">
+                <button class="filter-button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
+                </button>
+                <div id="ftr" class="filter-content">
+                    <a href="#" class = "filter-element">test1</a>
+                    <a href = "#" class = "filter-element"> test2</a>
+                </div>
+            </div>
+            <button class="search-button">Search</button>
+        </div>
+
+      
+        <div class="cart-header">
+            <h1>My Bidded Items</h1>
+            <p style="color: #666; margin-top: 5px;">管理您已競標的所有商品</p>
+        </div>
+
+        <!-- 表格標題 -->
+        <div class="table-header">
+            <div><input type="checkbox" id="select-all"></div>
+            <div>Product</div>
+            <div></div>
+            <div>StartBid</div>
+            <div>Highestbid</div>
+            <div></div>
+        </div>
+
+        <!-- 購物車項目容器 -->
+        <div id="cartItems">
+            <!-- 由 JavaScript 動態生成 -->
+        </div>
+
+        <!-- 空購物車 -->
+        <div id="emptyCart" class="empty-cart" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            <p>您的購物車目前是空的</p>
+            <p style="font-size: 14px; margin-top: 10px;">前往商品頁面開始競標吧！</p>
+        </div>
+    </div>
+
+
+    <script type="module" src="javascript/cart.js"></script>
+</body>
+</html>

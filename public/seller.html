@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller's Listing - 海大拍賣系統</title>
+    <link rel="stylesheet" href="css/seller.css">
+</head>
+<body>
+    <div id="sidebar"></div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Upload New Auction Item</h1>
+            <p class="page-subtitle">Please fill in the details below to start auctioning your item.</p>
+        </div>
+
+        <div class="add-item-form-container">
+            <form class="upload-form" id="itemUploadForm">
+
+                <!-- Upload Images -->
+                <div class="input-group">
+                    <label for="itemImage">Item Images (Max 5)</label>
+                    <label for="itemImage" class="file-upload-label">
+                        <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M12 5v14m7-7H5" stroke="currentColor" stroke-width="2" fill="none"/>
+                        </svg>
+                        <div class="upload-text">Click to upload images</div>
+                    </label>
+                    <input type="file" id="itemImage" name="itemImage" accept="image/*" multiple required>
+                </div>
+
+                <!-- Item Name -->
+                <div class="input-group">
+                    <label for="itemName">Item Name</label>
+                    <input type="text" id="itemName" name="itemName" placeholder="Enter item name" required>
+                </div>
+
+                <!-- Description -->
+                <div class="input-group">
+                    <label for="itemDescription">Item Description</label>
+                    <textarea id="itemDescription" name="itemDescription" rows="5" placeholder="Please describe the item's condition and features" required></textarea>
+                </div>
+
+                <!-- Auction Details Title -->
+                <h2 class="section-title">Auction Details</h2>
+
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label for="startPrice">Starting Price (NTD)</label>
+                        <input type="number" id="startPrice" name="startPrice" placeholder="e.g.: 100" min="1" step="1" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="reservePrice">Reserve Price (Optional) (NTD)</label>
+                        <input type="number" id="reservePrice" name="reservePrice" placeholder="e.g.: 500" min="1" step="1">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="duration">Auction Duration (Days)</label>
+                    <input type="number" id="duration" name="duration" placeholder="e.g.: 7" min="1" max="30" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="category">Item Category</label>
+                    <select id="category" name="category" required>
+                        <option value="" disabled selected>Please select a category</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="books">Books</option>
+                        <option value="fashion">Apparel & Accessories</option>
+                        <option value="collectibles">Collectibles</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <!-- Buttons -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit">Start Auction</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="javascript/seller.js"></script>
+</body>
+</html>

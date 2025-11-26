@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+    <link rel="stylesheet" href="css/userProfile.css">
+</head>
+<body>
+    <div id="sidebar"></div>
+    <div class="main-content">
+        <!-- 頂部 -->
+        <div class="top-bar">
+            <div class="top-actions">
+            </div>
+        </div>
+
+        <!-- Recommended 區塊 -->
+        <div class="section">
+            <h2 class="section-title">Account Settings</h2>
+            <div class="profile-section">
+                <div class="profile-pic">
+                    <img id = "pic" alt="Profile Picture">
+                </div>
+                <div class="profile-pic-actions">
+                    <button class="change-pic-btn" onclick="">Change Picture</button>
+                    <button class="delete-pic-btn" onclick="">Delete Picture</button>
+                </div>
+            </div>
+            <div class="profile-details">
+                Name
+                <input class="profile-details-input" type="text" id="nameInput" placeholder="Your name">
+            </div>
+            <div class="profile-details">
+                Email
+                <input class="profile-details-input" type="text" id="emailInput" placeholder="Your email address">
+            </div>
+            <div class="profile-details">
+                Telephone Number
+                <input class="profile-details-input" type="text" id="numInput" placeholder="Your number">
+            </div>
+        </div>
+        <div class="section-2">
+            <button class="change-password-btn" onclick="changePassword()">Change Password</button>
+            <button class="save-btn" onclick="saveProfile()">Save Changes</button>
+        </div>
+        <!-- More 區塊 -->
+        <div class="section">
+            <button class="logout-btn" onclick="logout()">Log Out</button>
+            
+        </div>
+    </div>
+    <script type="module" src = "javascript/userProfile.js"> </script>
+</body>
+</html>

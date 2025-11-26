@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>拍賣詳情頁 - 海大拍賣系統</title>
+  <link rel="stylesheet" href="css/auction_item.css" />
+</head>
+<body>
+  <div class="container">
+    <!-- 側邊欄 -->
+    <div id="sidebar"></div>
+    <!-- 主要內容區 -->
+    <main class="content">
+      <div class="item-detail">
+        <div class="item-image">
+          <img src="./Image/Book.png" alt="Item Image">
+        </div>
+
+        <div class="item-info">
+          <h2>A Book</h2>
+          <!-- 商品描述 -->
+          <div class="item-description">
+            <p>
+              This is a second-hand book in good condition. The pages are slightly yellowed
+              but intact, and the cover shows minor wear. Perfect for collectors or readers
+              who enjoy classic literature.
+            </p>
+          </div>
+
+          <!-- 資訊卡 -->
+          <div class="info-grid">
+            <div class="info-box">
+              <div class="info-label">Seller</div>
+              <div class="info-value">SellerName</div>
+            </div>
+            <div class="info-box">
+              <div class="info-label">Start Bid</div>
+              <div class="info-value" id="startBid">$100</div>
+            </div>
+            <div class="info-box">
+              <div class="info-label">Highest Bid</div>
+              <div class="info-value" id="highestBid">$110</div>
+            </div>
+            <div class="info-box">
+              <div class="info-label">Time Remaining</div>
+              <div class="info-value warning" id="timeRemaining">Loading...</div>
+            </div>
+          </div>
+
+          <div class="bid-section">
+            <input type="number" id="bidAmount" value="110" min="100">
+            <button id="placeBidBtn">Place Bid</button>
+          </div>
+
+          <p class="notice" id="bidNotice"></p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="javascript/auction_item.js"></script>
+</body>
+</html>
