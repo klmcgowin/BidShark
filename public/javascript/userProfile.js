@@ -61,3 +61,17 @@ document.getElementById('change').addEventListener('click', async () => {
         alert("Update failed: " + (data.error || data.message));
     }
 });
+document.getElementById('logout').addEventListener('click', async () => {
+    let msg = await fetch('api/info/logout', {
+        method: "POST",
+        credentials: "include",
+        headers: {"Content-Type": "application/json"}
+    });
+    if(msg.ok) {
+        alert("Logging out")
+        window.location.href = 'homePage.html'
+    }else{
+        let opt = await msg.json()
+        alert(opt.message)
+    }
+})
