@@ -1,5 +1,4 @@
 import * as sideBar from './sideBar.js';
-
 fetch('sideBar.html')
     .then(res => res.text())
     .then(html => {
@@ -36,3 +35,29 @@ fetch('sideBar.html')
         document.getElementById("numInput").placeholder = data.phoneNumber || "Please enter a phone number" ;
     }
 })();
+
+document.getElementById('change').addEventListener('click', async () => {
+    const name = document.getElementById('nameInput').value;
+    const email = document.getElementById('emailInput').value;
+    const phone = document.getElementById('numInput').value;
+    const photo = null;
+    const res = await fetch('api/data/updateUserInfo', {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            picture: photo,
+            name: name,
+            email: email,
+            phoneNumber: phone,
+        })
+    });
+
+    const data = await res.json();
+    if (data.status === 'success') {
+        alert("Profile updated!");
+        window.location.reload();
+    } else {
+        alert("Update failed: " + (data.error || data.message));
+    }
+});

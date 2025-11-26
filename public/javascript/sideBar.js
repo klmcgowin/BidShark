@@ -27,5 +27,6 @@ export async function collapse() {
     if (!data.isLoggedIn) {
         document.getElementById("profile").classList.toggle("inactive");
         document.getElementById("upload").classList.toggle("inactive");
+        document.getElementById('cart').classList.toggle("inactive");
     }
 }
