@@ -22,7 +22,8 @@
                     <img id = "pic" alt="Profile Picture">
                 </div>
                 <div class="profile-pic-actions">
-                    <button class="change-pic-btn" onclick="">Change Picture</button>
+                    <label for = "imgInput" class="change-pic-btn">Change Picture</label>
+                    <input type="file" id="imgInput" accept="image/png" style="display:none;">
                     <button class="delete-pic-btn" onclick="">Delete Picture</button>
                 </div>
             </div>
@@ -40,7 +41,7 @@
             </div>
         </div>
         <div class="section-2">
-            <button class="change-password-btn" onclick="changePassword()">Change Password</button>
+            <button class="change-password-btn" >Change Password</button>
             <button class="save-btn" id="change">Save Changes</button>
         </div>
         <!-- More 區塊 -->
