@@ -93,3 +93,44 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+//switch logic
+const auctionHTML = `
+    <h2 class="section-title">Auction Details</h2>
+    <div class="grid-2">
+        <div class="input-group">
+            <label for="startPrice">Starting Price (NTD)</label>
+            <input type="number" id="startPrice" name="startPrice" placeholder="e.g.: 100" min="1" step="1" required>
+        </div>
+        <div class="input-group">
+            <label for="reservePrice">Reserve Price (Optional) (NTD)</label>
+            <input type="number" id="reservePrice" name="reservePrice" placeholder="e.g.: 500" min="1" step="1">
+        </div>
+    </div>
+    <div class="input-group">
+        <label for="duration">Auction Duration (Days)</label>
+        <input type="number" id="duration" name="duration" placeholder="e.g.: 7" min="1" max="30" required>
+    </div>
+`;
+
+const directSaleHTML = `
+    <h2 class="section-title">Direct Sale Details</h2>
+    <div class="grid-2">
+        <div class="input-group">
+            <label for="price">Price (NTD)</label>
+            <input type="number" id="price" name="price" placeholder="e.g.: 100" min="1" step="1" required>
+        </div>
+        <div class="input-group">
+            <label for="stock">Stock Quantity</label>
+            <input type="number" id="stock" name="stock" placeholder="e.g.: 10" min="1" step="1" required>
+        </div>
+    </div>
+`;
+document.getElementById('modeSwitch').addEventListener('change', function (e) {
+    if (this.checked) {
+        document.getElementById('salePanel').innerHTML = directSaleHTML;
+        document.getElementById('sbtn').textContent = 'Start Sale';
+    } else {
+        document.getElementById('salePanel').innerHTML = auctionHTML;
+        document.getElementById('sbtn').textContent = 'Start Auction';
+    }
+});

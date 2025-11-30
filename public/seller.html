@@ -41,27 +41,32 @@
                     <label for="itemDescription">Item Description</label>
                     <textarea id="itemDescription" name="itemDescription" rows="5" placeholder="Please describe the item's condition and features" required></textarea>
                 </div>
-
+                <label class="toggle-container">
+                    <input type="checkbox" id = "modeSwitch">
+                    <span class="slider"></span>
+                    <span class="label-text">Direct Sales</span>
+                </label>
                 <!-- Auction Details Title -->
-                <h2 class="section-title">Auction Details</h2>
+                <div id="salePanel">
+                    <h2 class="section-title">Auction Details</h2>
 
-                <div class="grid-2">
-                    <div class="input-group">
-                        <label for="startPrice">Starting Price (NTD)</label>
-                        <input type="number" id="startPrice" name="startPrice" placeholder="e.g.: 100" min="1" step="1" required>
+                    <div class="grid-2">
+                        <div class="input-group">
+                            <label for="startPrice">Starting Price (NTD)</label>
+                            <input type="number" id="startPrice" name="startPrice" placeholder="e.g.: 100" min="1" step="1" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="reservePrice">Reserve Price (Optional) (NTD)</label>
+                            <input type="number" id="reservePrice" name="reservePrice" placeholder="e.g.: 500" min="1" step="1">
+                        </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="reservePrice">Reserve Price (Optional) (NTD)</label>
-                        <input type="number" id="reservePrice" name="reservePrice" placeholder="e.g.: 500" min="1" step="1">
+                        <label for="duration">Auction Duration (Days)</label>
+                        <input type="number" id="duration" name="duration" placeholder="e.g.: 7" min="1" max="30" required>
                     </div>
                 </div>
-
-                <div class="input-group">
-                    <label for="duration">Auction Duration (Days)</label>
-                    <input type="number" id="duration" name="duration" placeholder="e.g.: 7" min="1" max="30" required>
-                </div>
-
                 <div class="input-group">
                     <label for="category">Item Category</label>
                     <select id="category" name="category" required>
@@ -73,12 +78,10 @@
                         <option value="other">Other</option>
                     </select>
                 </div>
-
                 <!-- Buttons -->
                 <div class="form-actions">
-                    <button type="submit" class="btn-submit">Start Auction</button>
+                    <button id = "sbtn" type="submit" class="btn-submit">Start Auction</button>
                 </div>
-
             </form>
         </div>
     </div>
