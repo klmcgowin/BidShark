@@ -104,39 +104,64 @@ dataRouter.post('/auctions/create', (req: Request, res: Response) => {
             if (images.length === 0) {
                 return res.status(400).json({ success: false, message: 'At least one image is required' });
             }
+            let result = null;
+            if(req.body.mode === 'true'){
+                const {
+                    itemName,
+                    itemDescription,
+                    price,
+                    stock,
+                    category
+                } = req.body;
+                if (!itemName || !itemDescription || !price || !stock || !category) {
+                    return res.status(400).json({success: false, message: ' Sale Mode: Missing required fields'});
+                }
+                const db = await connectDB();
+                result = await db.collection('auctionItems').insertOne({
+                    dSale: true,
+                    sellerId: new ObjectId(req.session.user.id),
+                    title: itemName.trim(),
+                    description: itemDescription.trim(),
+                    images,
+                    price: price,
+                    stock: stock,
+                    category,
+                    createdAt: new Date()
+                });
+            }else {
+                const {
+                    itemName,
+                    itemDescription,
+                    startPrice,
+                    reservePrice,
+                    duration,
+                    category
+                } = req.body;
 
-            const {
-                itemName,
-                itemDescription,
-                startPrice,
-                reservePrice,
-                duration,
-                category
-            } = req.body;
+                if (!itemName || !itemDescription || !startPrice || !duration || !category) {
+                    return res.status(400).json({success: false, message: 'Auction Mode: Missing required fields'});
+                }
 
-            if (!itemName || !itemDescription || !startPrice || !duration || !category) {
-                return res.status(400).json({ success: false, message: 'Missing required fields' });
+                const endTime = new Date();
+                endTime.setDate(endTime.getDate() + parseInt(duration));
+
+                const db = await connectDB();
+
+                result = await db.collection('auctionItems').insertOne({
+                    dSale: false,
+                    sellerId: new ObjectId(req.session.user.id),
+                    title: itemName.trim(),
+                    description: itemDescription.trim(),
+                    images,
+                    startPrice: Number(startPrice),
+                    reservePrice: reservePrice ? Number(reservePrice) : null,
+                    currentPrice: Number(startPrice),
+                    endTime,
+                    category,
+                    status: 'active',
+                    createdAt: new Date()
+                });
             }
-
-            const endTime = new Date();
-            endTime.setDate(endTime.getDate() + parseInt(duration));
-
-            const db = await connectDB();
-
-            const result = await db.collection('auctionItems').insertOne({
-                sellerId: new ObjectId(req.session.user.id),
-                title: itemName.trim(),
-                description: itemDescription.trim(),
-                images,
-                startPrice: Number(startPrice),
-                reservePrice: reservePrice ? Number(reservePrice) : null,
-                currentPrice: Number(startPrice),
-                endTime,
-                category,
-                status: 'active',
-                createdAt: new Date()
-            });
-
             res.json({
                 success: true,
                 message: 'Auction item created successfully!',
