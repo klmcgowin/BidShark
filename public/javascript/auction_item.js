@@ -60,7 +60,8 @@ async function loadItem() {
     elements.bidAmount.value = itemData.currentPrice + 10;
 
     // 賣家名稱（從 Users 拿
-    const userRes = await fetch(`/api/data/user/${itemData.sellerId}`);
+    const userRes = await fetch(`/api/read/getUserfromID/${itemData.sellerId}`);
+
     if (userRes.ok) {
       const userData = await userRes.json();
       elements.sellerName.textContent = userData.name || 'Anonymous';
