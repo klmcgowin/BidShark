@@ -7,7 +7,7 @@ fetch('sideBar.html')
         if (sidebar) {
             sidebar.innerHTML = html;
             const links = sidebar.querySelectorAll('a.nav-item');
-            const currentPage = window.location.pathname.split('/').pop() || 'seller.html';
+            const currentPage = window.location.pathname.split('/').pop() || 'uploadItem.html';
             links.forEach(link => {
                 if (link.getAttribute('href') === currentPage) {
                     link.classList.add('active');

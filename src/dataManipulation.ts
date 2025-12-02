@@ -366,4 +366,60 @@ dataRouter.post('/auctions/:id/bid', async (req: Request, res: Response) => {
     }
 });
 
+// user's uploaded items
+dataRouter.get('/myItems', async (req: Request, res: Response) => {
+    try {
+        if (!req.session?.user?.id) {
+            return res.status(401).json({ success: false, message: 'Not logged in' });
+        }
+
+        const userId = req.session.user.id;
+        const db = await connectDB();
+
+        const matchQuery: any = {
+            $or: [
+                { sellerId: new ObjectId(userId) },
+                { sellerId: userId }
+            ]
+        };
+
+        const items = await db.collection('auctionItems')
+            .find(matchQuery)
+            .sort({ createdAt: -1 })
+            .toArray();
+
+        const now = new Date();
+        const formatted = items.map(item => {
+            const isDirect = !!item.dSale;
+            const rawImage = item.images && item.images[0] ? item.images[0] : null;
+            const image = rawImage ? (rawImage.startsWith('/') ? rawImage : `/uploads/${rawImage}`) : '/Image/default-item.jpg';
+            let timeLeft = '';
+            if (!isDirect && item.endTime) {
+                const remainingMs = new Date(item.endTime).getTime() - now.getTime();
+                if (remainingMs <= 0) timeLeft = 'Ended';
+                else {
+                    const days = Math.floor(remainingMs / 86400000);
+                    const hours = Math.floor((remainingMs % 86400000) / 3600000);
+                    timeLeft = days > 0 ? `${days}d ${hours}h` : `${hours}h`;
+                }
+            }
+
+            return {
+                _id: item._id.toString(),
+                title: item.title,
+                dSale: isDirect,
+                price: isDirect ? item.price : (item.currentPrice ?? item.startPrice ?? 0),
+                image,
+                stock: isDirect ? (item.stock ?? 0) : undefined,
+                status: item.status ?? 'unknown',
+                timeLeft
+            };
+        });
+
+        res.json({ success: true, items: formatted });
+    } catch (err) {
+        console.error('Failed to load my items:', err);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
 export default dataRouter;
