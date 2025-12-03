@@ -346,6 +346,7 @@ dataRouter.post('/auctions/:id/bid', async (req: Request, res: Response) => {
                 $set: { currentPrice: bidAmount },
                 $push: {
                     bids: {
+                        itemId: item._id,
                         bidderId: new ObjectId(req.session.user.id),
                         amount: bidAmount,
                         createdAt: new Date()
