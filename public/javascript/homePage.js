@@ -142,7 +142,7 @@ async function loadAuctionItems() {
             card.style.cursor = 'pointer';
             card.addEventListener('click', () => {
                 const id = card.dataset.id;
-                window.location.href = `auction_item.html?id=${id}`;
+                window.location.href = `auctionItem.html?id=${id}`;
             });
         });
 

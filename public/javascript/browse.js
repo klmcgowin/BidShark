@@ -88,7 +88,7 @@ function renderItems(items) {
 
             // Make card clickable → go to item page
             card.addEventListener("click", () => {
-                window.location.href = `auction_item.html?id=${item._id}`;
+                window.location.href = `auctionItem.html?id=${item._id}`;
             });
         }
         container.appendChild(card);
@@ -135,7 +135,4 @@ window.onclick = function(event) {
     }
 };
 
-/* =========================================================
-   7. INIT
-========================================================= */
 loadItems();

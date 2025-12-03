@@ -50,47 +50,71 @@ async function loadItem() {
     if (!data.success) throw new Error(data.message || 'Loading failed');
 
     itemData = data.item;
-      // 賣家名稱（從 Users 拿
-      const userRes = await fetch(`/api/read/getUserfromID/${itemData.sellerId}`);
+    //compare current session to check if the user is the owner
+    let session = null;
+    try {
+      const sres = await fetch('/api/info/session', { method: 'POST', credentials: 'include' });
+      if (sres.ok) session = await sres.json();
+    } catch (e) {
+      session = null;
+    }
+    const isOwner = !!(session && session.id && session.id === itemData.sellerId);
 
-      if (userRes.ok) {
-          const userData = await userRes.json();
-          elements.sellerName.textContent = userData.name || 'Anonymous';
-      } else {
-          elements.sellerName.textContent = 'Unknown seller';
-      }
 
-      // 圖片
-      if (itemData.images && itemData.images.length > 0) {
-          elements.mainImage.src = itemData.images[0];
-          itemData.images.forEach((img, i) => {
-              const thumb = document.createElement('img');
-              thumb.src = img;
-              thumb.className = 'thumb';
-              if (i === 0) thumb.classList.add('active');
-              thumb.onclick = () => {
-                  elements.mainImage.src = img;
-                  document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
-                  thumb.classList.add('active');
-              };
-              elements.gallery.appendChild(thumb);
-          });
-      } else {
-          elements.mainImage.src = '/Image/default-item.jpg';
-      }
+    // 賣家名稱（從 Users 拿
+    const userRes = await fetch(`/api/read/getUserfromID/${itemData.sellerId}`);
 
-      elements.itemTitle.textContent = itemData.title;
-      elements.itemDesc.textContent = itemData.description || 'No Description';
-      if(itemData.dSale){
-          dSaleItems(itemData);
-          return;
+    if (userRes.ok) {
+        const userData = await userRes.json();
+        elements.sellerName.textContent = userData.name || 'Anonymous';
+    } else {
+        elements.sellerName.textContent = 'Unknown seller';
+    }
+
+    // 圖片
+    if (itemData.images && itemData.images.length > 0) {
+        elements.mainImage.src = itemData.images[0];
+        itemData.images.forEach((img, i) => {
+            const thumb = document.createElement('img');
+            thumb.src = img;
+            thumb.className = 'thumb';
+            if (i === 0) thumb.classList.add('active');
+            thumb.onclick = () => {
+                elements.mainImage.src = img;
+                document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+                thumb.classList.add('active');
+            };
+            elements.gallery.appendChild(thumb);
+        });
+    } else {
+        elements.mainImage.src = '/Image/default-item.jpg';
+    }
+
+    elements.itemTitle.textContent = itemData.title;
+    elements.itemDesc.textContent = itemData.description || 'No Description';
+
+    if (isOwner) {
+      if (elements.placeBidBtn) elements.placeBidBtn.disabled = true;
+      if (elements.bidAmount) {
+        elements.bidAmount.disabled = true;
       }
+      if (elements.bidNotice) {
+        elements.bidNotice.textContent = 'You cannot bid on your own item.';
+        elements.bidNotice.style.color = '#e63946';
+        elements.bidNotice.style.fontWeight = '600';
+        elements.bidNotice.style.display = 'block';
+      }
+    }
+
+    if(itemData.dSale){
+        dSaleItems(itemData);
+        return;
+    }
     // 基本資訊
     elements.startBid.textContent = `NT$${itemData.startPrice}`;
     elements.highestBid.textContent = `NT$${itemData.currentPrice}`;
     elements.bidAmount.min = itemData.currentPrice + 10;
     elements.bidAmount.value = itemData.currentPrice + 10;
-
 
     // 開始倒數
     startCountdown(itemData.endTime);
@@ -178,7 +202,7 @@ elements.placeBidBtn.addEventListener('click', async () => {
 // 啟動
 document.addEventListener('DOMContentLoaded', loadItem);
 
-function dSaleItems(itemData) {
+function dSaleItems(itemData, isOwner) {
     document.getElementById("blah").innerHTML = `
         <div class="info-box">
             <div class="info-label">Quantity</div>
@@ -191,6 +215,14 @@ function dSaleItems(itemData) {
     `;
     document.getElementById("quantity").textContent = itemData.stock + ' left';
     document.getElementById("price").textContent = `NT$${itemData.price}`;
+
+    if (isOwner) {
+        document.getElementById("bidSection").innerHTML = `
+        <div class="info-warning" style="color:#e63946; font-weight:600;">You cannot buy your own item.</div>
+        `;
+        return;
+    }
+
     if(itemData.stock <= 0){
         document.getElementById("bidSection").innerHTML = `Sold out`;
     }else {
