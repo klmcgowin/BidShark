@@ -55,6 +55,27 @@ body {
   object-fit: cover;
 }
 
+.image-gallery { 
+  display: flex; 
+  gap: 10px;
+  margin-top: 10px; 
+  flex-wrap: wrap; 
+}
+
+.thumb { 
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px; 
+  cursor: pointer; 
+  opacity: 0.7; 
+  transition: 0.3s; 
+}
+
+.thumb.active { 
+  opacity: 1; 
+  border: 3px solid #007bff; 
+}
 
 .item-info {
   flex: 1;
