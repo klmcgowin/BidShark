@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cart</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="css/cart.css">
 </head>
 <body>
@@ -36,29 +37,18 @@
 
         <!-- 表格標題 -->
         <div class="table-header">
-            <div><input type="checkbox" id="select-all"></div>
-            <div>Product</div>
-            <div></div>
-            <div>StartBid</div>
-            <div>Highestbid</div>
-            <div></div>
+            <div>Bidding</div>
+            <div id="bidItems">
+
+            </div>
+        </div>
+        <div class="table-header">
+            <div>Deals</div>
+        </div>
+        <div class = "cart-item" id="cartItems">
+
         </div>
 
-        <!-- 購物車項目容器 -->
-        <div id="cartItems">
-            <!-- 由 JavaScript 動態生成 -->
-        </div>
-
-        <!-- 空購物車 -->
-        <div id="emptyCart" class="empty-cart" style="display: none;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <path d="M16 10a4 4 0 0 1-8 0"></path>
-            </svg>
-            <p>您的購物車目前是空的</p>
-            <p style="font-size: 14px; margin-top: 10px;">前往商品頁面開始競標吧！</p>
-        </div>
     </div>
 
 

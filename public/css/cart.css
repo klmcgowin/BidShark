@@ -111,6 +111,8 @@ body {
         }
 
         .cart-item {
+            display: flex;
+            gap: 16px;
             background-color: white;
             margin-bottom: 15px;
             border-radius: 8px;

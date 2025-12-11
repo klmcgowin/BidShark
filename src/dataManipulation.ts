@@ -186,6 +186,14 @@ dataRouter.get('/auctions', async (req: Request, res: Response) => {
         const now = new Date();
         const formatted = items.map(item => {
             if (item.dSale) {
+                if(item.stock <= 0){
+                    db.collection('auctionItems').updateOne({
+                        _id: item._id
+                    },{
+                        $set: { status: 'inactive' }
+                    });
+                    return;
+                }
                 return{
                     dSale: true,
                     _id: item._id.toString(),
@@ -200,6 +208,12 @@ dataRouter.get('/auctions', async (req: Request, res: Response) => {
 
             if (remainingMs <= 0) {
                 timeLeft = 'Ended';
+                db.collection('auctionItems').updateOne({
+                    _id: item._id
+                }, {
+                    $set: { status: 'inactive' }
+                });
+                return;
             } else {
                 const days = Math.floor(remainingMs / 86400000);
                 const hours = Math.floor((remainingMs % 86400000) / 3600000);
@@ -576,5 +590,55 @@ dataRouter.post('/auctions/:id/edit', (req: Request, res: Response) => {
         }
     });
 });
+dataRouter.post('/auctions/:id/buy/:amt', async (req: Request, res: Response) => {
+    try {
+        if (!req.session?.user?.id) {
+            return res.status(401).json({ success: false, message: 'Please log in first' });
+        }
 
+        const db = await connectDB();
+        const amt = parseInt(req.params.amt,10);
+        const itemId = req.params.id;
+
+        if (!ObjectId.isValid(itemId)) {
+            return res.status(400).json({ success: false, message: 'Invalid item ID' });
+        }
+
+        const item = await db.collection('auctionItems').findOne({
+            _id: new ObjectId(itemId),
+            dSale: true,
+            status: 'active'
+        });
+        if (!item) {
+            return res.status(404).json({ success: false, message: 'Item not found or not available for direct sale' });
+        }
+        if(item.stock <= 0){
+            await db.collection('auctionItems').updateOne(
+                { _id: item._id },
+                { $set: { status: "inactive" } }
+            );
+            return res.status(400).json({ success: false, message: 'Item is out of stock' });
+        }
+
+        const updateResult = await db.collection('auctionItems').updateOne(
+            { _id: item._id },
+            { $set: { stock: item.stock - amt } }
+        );
+        if (updateResult.modifiedCount === 0) {
+            return res.status(500).json({ success: false, message: 'Failed to update stock' });
+        }
+        const result = await db.collection('deal').insertOne({
+                itemId: item._id,
+                buyerId: new ObjectId(req.session.user.id),
+                quantity: amt,
+                individual_price: item.price,
+                total_price: item.price * amt,
+                purchaseDate: new Date()
+        });
+        res.json({ success: true, message: 'Purchase successful' });
+    } catch (err) {
+        console.error('Purchase failed:', err);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
 export default dataRouter;

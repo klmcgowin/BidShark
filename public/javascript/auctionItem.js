@@ -227,7 +227,34 @@ function dSaleItems(itemData, isOwner) {
         document.getElementById("bidSection").innerHTML = `Sold out`;
     }else {
         document.getElementById("bidSection").innerHTML = `
+        <input class = "inputBox" type = "number" id="buyAmount" value="1" min="1" max="${itemData.stock}">
         <button id="buyBtn" class = 'btn'>Buy</button>
         `;
+        document.getElementById("buyAmount").addEventListener('change', (e) => {
+            let val = parseInt(e.target.value);
+            if (isNaN(val) || val < 1) val = 1;
+            if (val > itemData.stock) val = itemData.stock;
+            e.target.value = val;
+        });
+        document.getElementById("buyBtn").addEventListener('click', async () => {
+            try {
+                const amt = document.getElementById("buyAmount").value;
+                const res = await fetch(`/api/data/auctions/${itemId}/buy/${amt}`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {'Content-Type': 'application/json'}
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    alert(result.message || 'Purchase successful!');
+                    window.location.reload();
+                }else{
+                    alert(result.message || 'Purchase failed.');
+                }
+            }catch(err) {
+                alert('Network error, please try again.');
+            }
+        });
     }
 }
