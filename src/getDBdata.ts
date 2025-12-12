@@ -28,5 +28,19 @@ DBreader.get('/getAllDeals', async(req, res) => {
     return res.status(200).json(result);
 });
 
-
+DBreader.get('/getAllBid', async(req, res) => {
+    const db = await connectDB();
+    const bid = db.collection('Bid');
+    const result = await bid.aggregate([
+        {
+            $lookup: {
+                from: 'auctionItems',
+                localField: 'itemId',
+                foreignField: '_id',
+                as: 'auctionItem'
+            }
+        }
+    ]).toArray();
+    return res.status(200).json(result);
+});
 export default DBreader;

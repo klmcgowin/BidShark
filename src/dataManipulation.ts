@@ -363,7 +363,14 @@ dataRouter.post('/auctions/:id/bid', async (req: Request, res: Response) => {
                 }
             }
         );
-
+        await db.collection('Bid').insertOne(
+            {
+                itemId: item._id,
+                bidderId: new ObjectId(req.session.user.id),
+                price: bidAmount,
+                createdAt: new Date()
+            }
+        );
         res.json({
             success: true,
             newPrice: bidAmount,

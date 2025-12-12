@@ -85,12 +85,11 @@ function renderItems(items) {
             <div class="item-price">NTD ${item.price}</div>
             <div class="item-time">${item.timeLeft}</div>
         `;
-
-            // Make card clickable → go to item page
-            card.addEventListener("click", () => {
-                window.location.href = `auctionItem.html?id=${item._id}`;
-            });
         }
+        // Make card clickable → go to item page
+        card.addEventListener("click", () => {
+            window.location.href = `auctionItem.html?id=${item._id}`;
+        });
         container.appendChild(card);
     });
 }
