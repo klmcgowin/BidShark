@@ -6,6 +6,7 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import {client} from "./ConnectToDB.ts";
 import { fileURLToPath } from 'url';
+import { runScheduledCleanup } from './auctionService.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,4 +42,9 @@ app.use(
 );
 
 app.use('/api', mainRouter);
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+    runScheduledCleanup();
+    setInterval(runScheduledCleanup, 60 * 60 * 1000);
+});
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

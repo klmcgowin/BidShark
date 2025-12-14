@@ -44,26 +44,34 @@ body {
   flex: 1.2;
   background: #fafafa;
   display: flex;
+
+  flex-direction: column; 
   align-items: center;
   justify-content: center;
   overflow: hidden; 
+  padding: 20px;
 }
 
-.item-image img {
+#mainImage {
   width: 100%;
-  height: auto;
-  object-fit: cover;
+  max-height: 500px;
+  object-fit: contain; 
+  border-radius: 12px;
 }
+
 
 .image-gallery { 
   display: flex; 
   gap: 10px;
-  margin-top: 10px; 
+  margin-top: 20px;
   flex-wrap: wrap; 
+  width: 100%;
+  justify-content: center;
 }
 
-.thumb { 
-  width: 80px;
+
+.image-gallery .thumb { 
+  width: 80px; 
   height: 80px;
   object-fit: cover;
   border-radius: 8px; 
@@ -72,7 +80,7 @@ body {
   transition: 0.3s; 
 }
 
-.thumb.active { 
+.image-gallery .thumb.active { 
   opacity: 1; 
   border: 3px solid #007bff; 
 }

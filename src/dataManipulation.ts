@@ -7,6 +7,7 @@ import { ObjectId } from "mongodb";
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { settleAuction } from './auctionService.ts';
 
 const { Router } = expressPkg;
 const dataRouter = Router();
@@ -208,11 +209,7 @@ dataRouter.get('/auctions', async (req: Request, res: Response) => {
 
             if (remainingMs <= 0) {
                 timeLeft = 'Ended';
-                db.collection('auctionItems').updateOne({
-                    _id: item._id
-                }, {
-                    $set: { status: 'inactive' }
-                });
+                settleAuction(item._id.toString());
                 return;
             } else {
                 const days = Math.floor(remainingMs / 86400000);
