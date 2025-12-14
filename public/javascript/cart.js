@@ -33,76 +33,107 @@ async function bidData() {
 
 }
 
-(function(){
-    dealData().then(() => {
-        const dealContainer = document.getElementById('cartItems');
-        deals.forEach(deal => {
-            const dealElement = document.createElement('div');
-            dealElement.classList.add('card');
-            dealElement.style.width = '13rem';
-            const item = deal.auctionItem?.[0] || {};
-            dealElement.innerHTML = `
-                <img class="card-img-top" src="${item.images || '/Image/default-item.jpg'}" alt="Card image cap">
-                <div class="card-body">
-                    <h5 class="card-title">${item.title}</h5>
-                    <p class="card-text">
-                        ${deal.quantity} items * ${deal.individual_price} TWD =
-                        ${deal.total_price} TWD
-                    </p>
-                </div>
-            `;
-            dealContainer.appendChild(dealElement);
-        });
+bidData().then(() => {
+    const bidContainer = document.getElementById('bidItems');
+    const itemYouBid = [];
+
+    bids.forEach(bid => {
+        const item = bid.auctionItem?.[0];
+        if (!item || item.status === 'inactive') return;
+
+        const existing = itemYouBid.find(i => i._id === item._id);
+
+        if (!existing) {
+            itemYouBid.push({
+                ...item,
+                yourBid: bid.price
+            });
+        } else {
+            // update highest current price
+            if (item.currentPrice > existing.currentPrice) {
+                existing.currentPrice = item.currentPrice;
+            }
+            // update YOUR highest bid
+            if (bid.price > existing.yourBid) {
+                existing.yourBid = bid.price;
+            }
+        }
     });
-    bidData().then(() => {
-        const bidContainer = document.getElementById('bidItems');
-        bids.forEach(bid => {
-            const item = bid.auctionItem?.[0] || {};
-            if(item.status === 'inactive') return;
-            const bidElement = document.createElement('div');
-            bidElement.classList.add('card');
-            bidElement.style.width = '13rem';
-            bidElement.innerHTML = `
-                <img class="card-img-top" src="${item.images || '/Image/default-item.jpg'}" alt="Card image cap">
-                <div class="card-body">
-                    <h5 class="card-title">${item.title}</h5>
-                    <p class="card-text">
-                        Current Highest Bid: ${item.currentPrice} TWD
-                        <br>
-                        Your Bid: ${bid.price} TWD
-                        <br>
-                        Time Left: <span class="countdown" data-endtime="${item.endTime}" style= 'color:red' ></span>
-                    </p>
-                </div>
-            `;
-            bidContainer.appendChild(bidElement);
-            (function(el, endTimeStr){
-                const span = el.querySelector('.countdown');
-                let timer;
-                function update(){
-                    const now = new Date();
-                    const end = new Date(endTimeStr);
-                    let diff = Math.max(0, end - now);
-                    if(diff <= 0){
-                        span.textContent = 'Ended';
-                        clearInterval(timer);
-                        return;
-                    }
-                    const days = Math.floor(diff / 86400000);
-                    diff %= 86400000;
-                    const hours = Math.floor(diff / 3600000);
-                    diff %= 3600000;
-                    const minutes = Math.floor(diff / 60000);
-                    diff %= 60000;
-                    const seconds = Math.floor(diff / 1000);
-                    span.textContent = (days ? days + 'd ' : '') +
-                        String(hours).padStart(2,'0') + ':' +
-                        String(minutes).padStart(2,'0') + ':' +
-                        String(seconds).padStart(2,'0');
+
+    itemYouBid.forEach(item => {
+        const bidElement = document.createElement('div');
+        bidElement.classList.add('card');
+        bidElement.style.width = '13rem';
+
+        bidElement.innerHTML = `
+            <img class="card-img-top" src="${item.images || '/Image/default-item.jpg'}">
+            <div class="card-body">
+                <h5 class="card-title">${item.title}</h5>
+                <p class="card-text">
+                    Current Highest Bid: ${item.currentPrice} TWD<br>
+                    Your Bid: ${item.yourBid} TWD<br>
+                    Time Left: <span class="countdown" data-endtime="${item.endTime}" style="color:red"></span>
+                </p>
+            </div>
+        `;
+
+        bidContainer.appendChild(bidElement);
+
+        // countdown
+        (function(el, endTimeStr){
+            const span = el.querySelector('.countdown');
+            let timer;
+
+            function update(){
+                const now = new Date();
+                const end = new Date(endTimeStr);
+                let diff = Math.max(0, end - now);
+
+                if (diff <= 0){
+                    span.textContent = 'Ended';
+                    clearInterval(timer);
+                    return;
                 }
-                update();
-                timer = setInterval(update, 1000);
-            })(bidElement, item.endTime);
-        });
+
+                const days = Math.floor(diff / 86400000);
+                diff %= 86400000;
+                const hours = Math.floor(diff / 3600000);
+                diff %= 3600000;
+                const minutes = Math.floor(diff / 60000);
+                diff %= 60000;
+                const seconds = Math.floor(diff / 1000);
+
+                span.textContent =
+                    (days ? days + 'd ' : '') +
+                    String(hours).padStart(2,'0') + ':' +
+                    String(minutes).padStart(2,'0') + ':' +
+                    String(seconds).padStart(2,'0');
+            }
+
+            update();
+            timer = setInterval(update, 1000);
+        })(bidElement, item.endTime);
     });
-})();
+});
+
+dealData().then(() => {
+    const dealContainer = document.getElementById('cartItems');
+    deals.forEach(deal => {
+        const item = deal.auctionItem?.[0];
+        const dealElement = document.createElement('div');
+        dealElement.classList.add('card');
+        dealElement.style.width = '13rem';
+        dealElement.innerHTML = `
+            <img class="card-img-top" src="${item.images || '/Image/default-item.jpg'}">
+            <div class="card-body">
+                <h5 class="card-title">${item.title}</h5>
+                <p class="card-text">
+                    Quantity: ${deal.quantity}<br>
+                    individual Price: ${deal.individual_price}<br>
+                    Total Price: ${deal.total_price}
+                </p>
+            </div>
+        `;
+        dealContainer.appendChild(dealElement);
+    });
+});
