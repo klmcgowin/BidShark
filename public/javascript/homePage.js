@@ -136,7 +136,6 @@ async function loadAuctionItems() {
             }
             moreGrid.insertAdjacentHTML('beforeend', smallCardHTML);
         });
-
         // 點擊卡片跳轉到詳情頁
         document.querySelectorAll('.item-card, .more-card').forEach(card => {
             card.style.cursor = 'pointer';
