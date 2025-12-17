@@ -99,6 +99,4 @@ chatRouter.post('/sendMessage', async (req: Request, res: Response) => {
     res.status(200).json({ status: 'Message sent' });
 });
 
-
-
 export default chatRouter;
