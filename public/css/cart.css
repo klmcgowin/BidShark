@@ -22,6 +22,9 @@ body {
     position: relative;
     /* 為了讓 sticky bar 定位 */
 }
+.main-content.collapsed{
+    margin-left: 2vw;
+}
 
 /* --- 上方搜尋列 Top Menu (保留你原本的樣式) --- */
 .top-menu {

@@ -22,6 +22,9 @@ body {
     flex: 1;
     padding: 30px 40px;
 }
+.main-content.collapsed{
+    margin-left: 2vw;
+}
 
 /* 頂部導航 */
 .top-menu {
@@ -250,4 +253,5 @@ body {
 
 .hidden {
     display: none !important;
+
 }

@@ -65,7 +65,9 @@ body {
     flex: 1;
     padding: 40px 80px;
 }
-
+.main-content.collapsed{
+    margin-left: 2vw;
+}
 .page-header {
     margin-bottom: 30px;
 }

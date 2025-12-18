@@ -18,7 +18,9 @@ body {
     flex: 1;
     padding: 30px 40px;
 }
-
+.main-content.collapsed{
+    margin-left: 2vw;
+}
 .top-menu {
     display: flex;
     align-items: center;
