@@ -39,28 +39,26 @@ body {
 
 /* --- 上方搜尋列 Top Menu --- */
 .top-menu {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr auto;
     gap: 12px;
+    align-items: center;
     margin-bottom: 40px;
 }
 
 .search-bar {
     flex: 1;
     padding: 16px;
-    border: 1px solid var(--border-color);
     background: var(--card-bg);
     color: var(--text-color);
-
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     transition: all 0.2s;
     font-size: 16px;
-    width: 100%;
 }
 
 .search-button {
     padding: 16px 20px;
-    /* ✅ 反轉配色：黑底白字 -> 文字色底背景色字 */
     background: var(--text-color);
     color: var(--bg-color);
     border: none;
@@ -68,8 +66,8 @@ body {
     cursor: pointer;
     font-weight: 600;
     transition: all 0.2s;
-    white-space: nowrap;
 }
+
 
 .search-button:hover {
     opacity: 0.8;
@@ -111,7 +109,8 @@ body {
     background: var(--card-bg);
     overflow: hidden;
     margin-bottom: 20px;
-    max-width: 15vw;
+    width: 100%;
+    max-width: 420px; /* reasonable max card width */
 }
 
 .card:hover {
@@ -123,7 +122,7 @@ body {
     width: 100%;
     object-fit: cover;
     background-color: var(--border-color);
-    max-height: 13vw;
+    max-height: 240px;
     align-self: center;
 }
 
@@ -284,6 +283,7 @@ body {
     .top-menu {
         flex-direction: column;
         gap: 10px;
+        flex-wrap: nowrap; /* enforce column on small screens, avoid unexpected wrapping */
     }
 
     .search-bar {
@@ -297,4 +297,8 @@ body {
         border-radius: 15px;
         /* 手機版圓角稍微小一點 */
     }
+
+    /* Make card layout flow better on small screens */
+    .card { max-width: 100%; }
+    .card-img-top { max-height: 40vw; }
 }

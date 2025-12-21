@@ -266,3 +266,67 @@ input:checked+.slider:before {
 .sidebar.collapsed .theme-switch-wrapper {
     display: none !important;
 }
+
+/* Mobile adjustments */
+.sidebar.mobile {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    width: 260px;
+    height: 100vh;
+    z-index: 1150;
+    transition: left 220ms ease;
+    box-shadow: 0 14px 40px rgba(0,0,0,0.12);
+    background: var(--sidebar-bg, #fff);
+}
+.sidebar.mobile.mobile-open,
+.sidebar.mobile.mobile-open * {
+    /* when open, left reset via JS class */
+}
+.sidebar.mobile.mobile-open { left: 0; }
+
+/* make main content full width on small screens */
+@media (max-width: 820px) {
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+    }
+
+    /* increase tappable targets */
+    .nav-item, .toggle-btn {
+        min-height: 44px;
+        padding: 10px 14px;
+    }
+
+    /* floating action button sizing */
+    .add-button {
+        width: 56px;
+        height: 56px;
+        font-size: 28px;
+        right: 16px;
+        bottom: 16px;
+    }
+
+    /* item card adjustments */
+    .item-content { grid-template-columns: 80px 1fr 100px; gap: 8px; }
+    .item-img { border-radius: 6px; }
+
+    /* form inputs full width */
+    input, textarea, select { font-size: 15px; }
+}
+
+/* Make images responsive and ensure list thumbnails behave */
+img { max-width: 100%; height: auto; display: block; }
+.item-img, .card-img-top, .item-image img { width: 100%; height: auto; object-fit: cover; }
+
+/* Use CSS variable for main content left margin so layouts adapt when sidebar collapsed */
+:root { --sidebar-width: 240px; }
+.main-content { margin-left: var(--sidebar-width); }
+.sidebar.collapsed ~ .main-content { margin-left: 2vw; }
+
+/* Ensure interactive elements are touch-friendly */
+button, .btn, a.nav-item {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 8px 12px;
+}

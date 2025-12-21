@@ -7,7 +7,27 @@ if (savedTheme === 'dark') {
 }
 
 export async function collapse() {
-    
+    // If sidebar container exists but is empty, try to hydrate from cache first for faster render
+    const sidebarEl = document.getElementById('sidebar');
+    try {
+        if (sidebarEl && !sidebarEl.innerHTML.trim()) {
+            const cached = localStorage.getItem('cachedSidebarHtml');
+            if (cached) {
+                sidebarEl.innerHTML = cached;
+            }
+
+            // Fetch latest in background and update cache (non-blocking)
+            fetch('sideBar.html').then(r => r.text()).then(html => {
+                if (html && sidebarEl) {
+                    // update DOM only if still empty to avoid clobbering any server-rendered content
+                    if (!sidebarEl.innerHTML.trim()) sidebarEl.innerHTML = html;
+                    localStorage.setItem('cachedSidebarHtml', html);
+                }
+            }).catch(()=>{});
+        }
+    } catch (e) {
+        console.error('Sidebar cache error', e);
+    }
     // === Sidebar Toggle 邏輯 ===
     const toggleBtn = document.getElementById("toggleSidebar");
     if (toggleBtn) {
@@ -58,6 +78,76 @@ export async function collapse() {
         });
     }
 
+    // add mobile toggle behavior
+    (function mobileSidebar() {
+        const body = document.body;
+        const sidebar = document.querySelector('.sidebar');
+
+        if (!sidebar) return;
+
+        // create mobile toggle button
+        let btn = document.getElementById('mobileSidebarToggle');
+        if (!btn) {
+            btn = document.createElement('button');
+            btn.id = 'mobileSidebarToggle';
+            btn.innerHTML = '☰';
+            btn.setAttribute('aria-label', 'Toggle menu');
+            Object.assign(btn.style, {
+                position: 'fixed',
+                top: '12px',
+                left: '12px',
+                zIndex: 1200,
+                width: '44px',
+                height: '44px',
+                borderRadius: '8px',
+                background: 'var(--bg-primary, #fff)',
+                border: 'none',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.12)'
+            });
+            document.body.appendChild(btn);
+        }
+
+        // overlay
+        let overlay = document.getElementById('sidebarOverlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'sidebarOverlay';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:1100;display:none';
+            document.body.appendChild(overlay);
+        }
+
+        function openSidebar() {
+            sidebar.classList.add('mobile-open');
+            overlay.style.display = 'block';
+            body.style.overflow = 'hidden';
+        }
+        function closeSidebar() {
+            sidebar.classList.remove('mobile-open');
+            overlay.style.display = 'none';
+            body.style.overflow = '';
+        }
+
+        btn.addEventListener('click', () => {
+            if (sidebar.classList.contains('mobile-open')) closeSidebar(); else openSidebar();
+        });
+        overlay.addEventListener('click', closeSidebar);
+
+        const mq = window.matchMedia('(max-width: 820px)');
+        function apply() {
+            if (mq.matches) {
+                sidebar.classList.add('mobile');
+                btn.style.display = 'block';
+            } else {
+                sidebar.classList.remove('mobile', 'mobile-open');
+                overlay.style.display = 'none';
+                btn.style.display = 'none';
+                body.style.overflow = '';
+            }
+        }
+        apply();
+        mq.addEventListener('change', apply);
+    })();
+
     // === 登入狀態檢查 ===
     try {
         const res = await fetch('/api/info/session', {
@@ -87,5 +177,35 @@ export async function collapse() {
         }
     } catch (err) {
         console.error("Session check failed:", err);
+    }
+
+    // Ensure images added dynamically are lazy-loaded and decoded async for mobile performance
+    try {
+        const setImgAttrs = (img) => {
+            try {
+                if (img && !img.loading) img.loading = 'lazy';
+                if (img && !img.decoding) img.decoding = 'async';
+            } catch (e) {}
+        };
+
+        // apply to existing images
+        document.querySelectorAll('img').forEach(setImgAttrs);
+
+        // observe for future images added dynamically
+        const obs = new MutationObserver(muts => {
+            for (const m of muts) {
+                if (m.type === 'childList' && m.addedNodes.length) {
+                    m.addedNodes.forEach(node => {
+                        if (node.nodeType === 1) {
+                            if (node.tagName === 'IMG') setImgAttrs(node);
+                            node.querySelectorAll && node.querySelectorAll('img').forEach(setImgAttrs);
+                        }
+                    });
+                }
+            }
+        });
+        obs.observe(document.body, { childList: true, subtree: true });
+    } catch (e) {
+        console.error('Image lazyload setup failed', e);
     }
 }

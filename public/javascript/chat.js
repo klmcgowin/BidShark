@@ -156,6 +156,58 @@ async function reloadMessages() {
     messagesArea.scrollTop = oldScrollPosition;
 }
 document.addEventListener('DOMContentLoaded', loadChats);
+// ----- mobile list toggle: create overlay and toggle button -----
+(function mobileChatToggle() {
+    const body = document.body;
+    // create overlay
+    let overlay = document.querySelector('.chat-list-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'chat-list-overlay';
+        document.body.appendChild(overlay);
+    }
+    // create toggle button
+    let toggle = document.querySelector('.mobile-chat-toggle');
+    if (!toggle) {
+        toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'mobile-chat-toggle';
+        toggle.setAttribute('aria-label', 'Open chats');
+        toggle.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 2H4a2 2 0 00-2 2v14l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2zM6 9h12v2H6V9zm0-3h12v2H6V6z"/></svg>';
+        document.body.appendChild(toggle);
+    }
+    const list = document.querySelector('.chat-list-container');
+
+    function closeList() {
+        list?.classList.remove('show');
+        overlay.classList.remove('show');
+    }
+    function openList() {
+        list?.classList.add('show');
+        overlay.classList.add('show');
+    }
+
+    toggle.addEventListener('click', () => {
+        if (!list) return;
+        if (list.classList.contains('show')) closeList(); else openList();
+    });
+    overlay.addEventListener('click', closeList);
+
+    // when a chat is opened on mobile, hide the list
+    const origGetMessages = window.getMessages;
+    // if getMessages is defined later, hook inside it — safe fallback below
+    const hookCloseOnOpen = () => {
+        const buttons = document.querySelectorAll('#chatContainer .list-group-item-action');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // small screens: hide list so messages are visible
+                if (window.matchMedia('(max-width:720px)').matches) closeList();
+            }, { passive: true });
+        });
+    };
+    // try hooking after DOM ready
+    setTimeout(hookCloseOnOpen, 600);
+})();
 (function(){
     //refresh every 5 second
     setInterval(loadChats, 5000);

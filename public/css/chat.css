@@ -120,9 +120,13 @@ body,
     padding: 15px;
     border-top: 1px solid var(--border-color);
     background-color: var(--sidebar-bg);
-    /* 底部輸入區背景 */
     display: flex;
     gap: 10px;
+
+    position: sticky;
+    bottom: 0;
+    z-index: 60;
+    box-shadow: 0 -6px 18px rgba(0,0,0,0.06);
 }
 
 /* 輸入框本體 */
@@ -228,9 +232,93 @@ input[type="text"]::placeholder {
     color: white !important;
 }
 
-/* 輸入框區域樣式 (確保背景正確) */
+/* 輸入框區域樣式 (確保背景正確) 
 .input-area {
     background-color: var(--sidebar-bg) !important;
     padding: 15px;
     display: flex;
+}*/
+
+.message-box,
+#chatContainer,
+#messagesArea,
+#messagesArea .message-list {
+    padding-bottom: 88px; /* should be >= input-area height */
+}
+
+@media (max-width: 720px) {
+    .chat-list-container {
+        display: none;
+    }
+    .chat-messages-container {
+        height: 100vh;
+    }
+    .message-box,
+    #messagesArea {
+        padding-bottom: 100px;
+    }
+    /* keep list available off-canvas; slide in when .show applied */
+    .chat-list-container {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 78%;
+        max-width: 380px;
+        height: 100vh;
+        background: var(--sidebar-bg);
+        z-index: 120;
+        transition: left 220ms ease;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+        overflow-y: auto;
+        padding-left: 88px;
+        padding-top: 88px;
+    }
+    .chat-list-container.show {
+        left: 0;
+    }
+    /* overlay shown when list is visible to close it */
+    .chat-list-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.35);
+        z-index: 110;
+    }
+    .chat-list-overlay.show { display: block; }
+    .chat-list-container .chat-item { padding-left: 12px; }
+
+    .chat-messages-container {
+        height: 100vh;
+    }
+    .message-box,
+    #messagesArea {
+        padding-bottom: 100px;
+    }
+
+    /* mobile toggle button */
+    .mobile-chat-toggle {
+        display: flex !important;
+        position: fixed;
+        left: 12px;
+        bottom: 72px;
+        z-index: 9999 !important;
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        background: var(--card-bg);
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+        cursor: pointer;
+        border: none;
+    }
+    /* Make overlay non-interactive when hidden so it can't block the toggle */
+    .chat-list-overlay {
+        pointer-events: none;
+    }
+    .chat-list-overlay.show {
+        pointer-events: auto;
+    }
+    .mobile-chat-toggle svg { width:20px; height:20px; }
 }

@@ -26,6 +26,25 @@ body {
   justify-content: center;
 }
 
+/* Ensure top search bar and button stay inline on narrow viewports
+   and allow children to shrink as needed. Also make item detail
+   stack vertically on very small screens. */
+.top-menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-bar {
+  flex: 1;
+  min-width: 0; /* allow to shrink inside flex */
+}
+
+.search-button {
+  flex: 0 0 auto; /* keep button from wrapping awkwardly */
+}
+
 .item-detail {
   display: flex;
   align-items: center;
@@ -202,4 +221,39 @@ body {
     background-color: var(--card-bg);
     color: var(--text-color);
     border: 1px solid var(--border-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 880px) {
+  .content {
+    margin-left: 0;
+    padding: 20px;
+    width: 100%;
+  }
+
+  .item-detail {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .item-image { 
+    border-right: none;
+    width: 100%;
+    padding: 8px;
+  }
+
+  #mainImage {
+    max-height: 60vw;
+    width: 100%;
+    object-fit: contain;
+  }
+
+  .image-gallery { justify-content: flex-start; }
+  .image-gallery .thumb { width: 64px; height: 64px; }
+
+  .item-info {
+    padding: 16px;
+  }
 }
