@@ -246,6 +246,10 @@ input[type="text"]::placeholder {
     padding-bottom: 88px; /* should be >= input-area height */
 }
 
+.mobile-chat-toggle { color: #111; background: var(--card-bg); }
+
+body.dark-mode .mobile-chat-toggle { color: #fff; background: var(--card-bg); }
+
 @media (max-width: 720px) {
     .chat-list-container {
         display: none;
@@ -320,5 +324,9 @@ input[type="text"]::placeholder {
     .chat-list-overlay.show {
         pointer-events: auto;
     }
-    .mobile-chat-toggle svg { width:20px; height:20px; }
+    .mobile-chat-toggle svg { 
+        width:20px; 
+        height:20px; 
+        fill: currentColor;
+    }
 }

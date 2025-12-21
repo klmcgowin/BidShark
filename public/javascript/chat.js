@@ -159,54 +159,60 @@ document.addEventListener('DOMContentLoaded', loadChats);
 // ----- mobile list toggle: create overlay and toggle button -----
 (function mobileChatToggle() {
     const body = document.body;
-    // create overlay
-    let overlay = document.querySelector('.chat-list-overlay');
-    if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.className = 'chat-list-overlay';
-        document.body.appendChild(overlay);
+    const mq = window.matchMedia('(max-width:720px)');
+    let overlay = null;
+    let toggle = null;
+    const listSelector = '.chat-list-container';
+
+    function createOverlay() {
+        overlay = document.querySelector('.chat-list-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'chat-list-overlay';
+            document.body.appendChild(overlay);
+        }
     }
-    // create toggle button
-    let toggle = document.querySelector('.mobile-chat-toggle');
-    if (!toggle) {
+    function createToggle() {
+        if (document.querySelector('.mobile-chat-toggle')) return;
+        createOverlay();
         toggle = document.createElement('button');
         toggle.type = 'button';
         toggle.className = 'mobile-chat-toggle';
         toggle.setAttribute('aria-label', 'Open chats');
-        toggle.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 2H4a2 2 0 00-2 2v14l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2zM6 9h12v2H6V9zm0-3h12v2H6V6z"/></svg>';
+        toggle.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 2H4a2 2 0 00-2 2v14l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2zM6 9h12v2H6V9zm0-3h12v2H6V6z"/></svg>';
         document.body.appendChild(toggle);
-    }
-    const list = document.querySelector('.chat-list-container');
 
-    function closeList() {
-        list?.classList.remove('show');
-        overlay.classList.remove('show');
-    }
-    function openList() {
-        list?.classList.add('show');
-        overlay.classList.add('show');
-    }
+        const list = document.querySelector(listSelector);
+        function closeList() { list?.classList.remove('show'); overlay.classList.remove('show'); }
+        function openList() { list?.classList.add('show'); overlay.classList.add('show'); }
 
-    toggle.addEventListener('click', () => {
-        if (!list) return;
-        if (list.classList.contains('show')) closeList(); else openList();
-    });
-    overlay.addEventListener('click', closeList);
-
-    // when a chat is opened on mobile, hide the list
-    const origGetMessages = window.getMessages;
-    // if getMessages is defined later, hook inside it — safe fallback below
-    const hookCloseOnOpen = () => {
-        const buttons = document.querySelectorAll('#chatContainer .list-group-item-action');
-        buttons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                // small screens: hide list so messages are visible
-                if (window.matchMedia('(max-width:720px)').matches) closeList();
-            }, { passive: true });
+        toggle.addEventListener('click', () => {
+            if (!list) return;
+            if (list.classList.contains('show')) closeList(); else openList();
         });
-    };
-    // try hooking after DOM ready
-    setTimeout(hookCloseOnOpen, 600);
+        overlay.addEventListener('click', closeList);
+
+        // close list when selecting a chat (hook after items rendered)
+        setTimeout(() => {
+            document.querySelectorAll('#chatContainer .list-group-item-action').forEach(btn => {
+                btn.addEventListener('click', () => { if (mq.matches) closeList(); }, { passive: true });
+            });
+        }, 600);
+    }
+    function removeToggle() {
+        const t = document.querySelector('.mobile-chat-toggle');
+        const o = document.querySelector('.chat-list-overlay');
+        const list = document.querySelector(listSelector);
+        if (t) t.remove();
+        if (o) o.remove();
+        if (list) list.classList.remove('show');
+    }
+
+    function handleMqChange(e) {
+        if (e.matches) createToggle(); else removeToggle();
+    }
+    mq.addEventListener('change', handleMqChange);
+    if (mq.matches) createToggle();
 })();
 (function(){
     //refresh every 5 second
