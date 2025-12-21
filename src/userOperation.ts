@@ -3,7 +3,7 @@ import type { Request, Response } from 'express';
 import { connectDB } from './ConnectToDB.js';
 import { ObjectId } from 'mongodb';
 import bcrypt from 'bcrypt';
-import { OAuth2Client } from 'google-auth-library'; // 1. 引入 Google 套件
+import { OAuth2Client } from 'google-auth-library'; 
 import fs from 'fs';
 import path from 'path';
 
@@ -13,15 +13,19 @@ const loginRouter = Router();
 // ==========================================
 // Google OAuth 設定
 // ==========================================
-// 請確保這些變數在 .env (本地) 和 Vercel Environment Variables 中都有設定
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
-// 動態判斷 Redirect URI (本地 vs 線上)
-// 確保這個邏輯能正確抓到當前的網域
-const REDIRECT_URI = process.env.NODE_ENV === 'production'
-    ? `https://${process.env.VERCEL_URL}/api/auth/google/callback` // Vercel 會自動提供這個變數
-    : 'http://localhost:3000/api/auth/google/callback';
+// 1. 優先讀取我們手動設定的 BASE_URL (最穩，解決 Vercel 部署後的 redirect_uri_mismatch)
+// 2. 如果沒有，嘗試讀取 Vercel 自動提供的網址 (記得補上 https://)
+// 3. 最後才是 localhost (本地開發用)
+const baseUrl = process.env.BASE_URL || 
+                (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+
+const REDIRECT_URI = `${baseUrl}/api/auth/google/callback`;
+
+// Debug: 方便在 Vercel Logs 確認當前使用的 callback 網址
+console.log("Current Google OAuth Redirect URI:", REDIRECT_URI);
 
 const oAuth2Client = new OAuth2Client(
     GOOGLE_CLIENT_ID,
@@ -31,23 +35,17 @@ const oAuth2Client = new OAuth2Client(
 
 // 2. [GET] /api/auth/google -> 啟動登入，導向 Google
 loginRouter.get('/google', (req: Request, res: Response) => {
-    // 修正 REDIRECT_URI (有時候 Vercel URL 沒帶 https)
-    const redirectUrl = process.env.NODE_ENV === 'production'
-        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL}/api/auth/google/callback`
-        : 'http://localhost:3000/api/auth/google/callback';
-
-    // 重新設定 client 的 redirect uri (保險起見)
-    oAuth2Client.redirectUri = redirectUrl;
+    // 確保 client 使用正確的 redirect uri
+    oAuth2Client.redirectUri = REDIRECT_URI;
 
     const authUrl = oAuth2Client.generateAuthUrl({
         access_type: 'offline',
         scope: [
             'https://www.googleapis.com/auth/userinfo.profile',
             'https://www.googleapis.com/auth/userinfo.email'
-        ] // 我們要請求的資料：個人資料和 Email
+        ] 
     });
 
-    // 讓前端跳轉到 Google 登入頁
     res.redirect(authUrl);
 });
 
@@ -91,20 +89,19 @@ loginRouter.get('/google/callback', async (req: Request, res: Response) => {
             const newUser = {
                 email,
                 name,
-                image: picture, // 存入 Google 大頭貼
-                googleId: payload.sub, // 紀錄 Google ID
-                authType: 'google',    // 標記為 Google 登入
+                image: picture, 
+                googleId: payload.sub, 
+                authType: 'google',    
                 createdAt: new Date(),
                 chat: [],
-                password: "GOOGLE_LOGIN_NO_PASSWORD", // 給一個隨機字串當佔位符
-                phone: "0000000000" 
+                
+                // 🔥【關鍵修正】為了通過 MongoDB Validation
+                password: "GOOGLE_LOGIN_NO_PASSWORD", 
+                phone: "0000000000" // 必須符合 Regex (不能是空字串)
             };
             const result = await users.insertOne(newUser);
             user = { ...newUser, _id: result.insertedId };
-        } else {
-            // 如果是舊使用者，可以選擇更新頭像 (可選)
-            // await users.updateOne({ _id: user._id }, { $set: { image: picture } });
-        }
+        } 
 
         // D. 建立 Session (登入成功)
         if (req.session) {
@@ -113,15 +110,16 @@ loginRouter.get('/google/callback', async (req: Request, res: Response) => {
                 email: user.email,
                 name: user.name,
                 image: user.image || picture,
-                phoneNumber: user.phone
+                phoneNumber: user.phone || null,
+                isLoggedIn: true // 確保與一般登入一致
             };
         }
 
         // E. 登入完成，跳轉回首頁
-        // 因為這是後端 Redirect，瀏覽器會直接跳轉
         res.redirect('/homePage.html');
 
-    } catch (error) {
+    } catch (error: any) {
+        // 如果是 Validation Error，印出詳細資訊方便除錯
         if (error.code === 121) {
             console.error("❌ MongoDB Validation Error Details:");
             console.dir(error.errInfo?.details, { depth: null, colors: true });
@@ -131,6 +129,7 @@ loginRouter.get('/google/callback', async (req: Request, res: Response) => {
     }
 });
 
+// 一般註冊 (SignUp)
 loginRouter.post('/SignUp', async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
@@ -144,18 +143,23 @@ loginRouter.post('/SignUp', async (req: Request, res: Response) => {
             return res.status(409).json({ error: 'User already exists!' });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        //const img = fs.readFileSync('public/default-profile.svg', { encoding: 'base64' })
+        
         const defaultProfilePath = path.join(process.cwd(), 'public', 'default-profile.svg');
         let img = '';
         if (fs.existsSync(defaultProfilePath)) {
             img = fs.readFileSync(defaultProfilePath, { encoding: 'base64' });
         }
+        
         await users.insertOne({
             email: email,
             password: hashedPassword,
             name: email.split("@")[0],
-            image: img
+            image: img,
+            phone: "0000000000", // 確保一般註冊也有預設電話，避免未來驗證失敗
+            chat: [],
+            createdAt: new Date()
         });
+        
         const user = await users.findOne({ email: email });
         req.session.user = {
             id: user._id.toString(),
@@ -172,6 +176,7 @@ loginRouter.post('/SignUp', async (req: Request, res: Response) => {
     }
 });
 
+// 一般登入 (Login)
 loginRouter.post('/login', async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
@@ -184,6 +189,12 @@ loginRouter.post('/login', async (req: Request, res: Response) => {
         if (!user) {
             return res.status(409).json({ error: 'User does not exist!' });
         }
+        
+        // 如果是 Google 帳號但嘗試用密碼登入
+        if (user.authType === 'google' && user.password === "GOOGLE_LOGIN_NO_PASSWORD") {
+             return res.status(400).json({ status: 'error', message: 'Please login with Google' });
+        }
+
         const match = await bcrypt.compare(password, user.password);
         if (match) {
             req.session.user = {
