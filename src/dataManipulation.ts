@@ -1,13 +1,13 @@
 import type { Request, Response } from 'express';
 import expressPkg from 'express';
-import { connectDB } from './ConnectToDB.js'; 
+import { connectDB } from './ConnectToDB.js';
 import { ObjectId } from "mongodb";
 import multer from 'multer';
 import path from 'path';
 import sharp from 'sharp'; // 1. 引入 sharp 進行圖片壓縮
 
-import { settleAuction } from './auctionService.js'; 
-import { establishChat } from "./chat.js"; 
+import { settleAuction } from './auctionService.js';
+import { establishChat } from "./chat.js";
 
 const { Router } = expressPkg;
 const dataRouter = Router();
@@ -64,11 +64,13 @@ dataRouter.post('/updateUserInfo', async (req: Request, res: Response) => {
 
         await users.updateOne(
             { _id: new ObjectId(id) },
-            { $set: {
-                image: picture || target.image,
-                name: name || target.name,
-                email: email || target.email,
-            }}
+            {
+                $set: {
+                    image: picture || target.image,
+                    name: name || target.name,
+                    email: email || target.email,
+                }
+            }
         );
 
         if (phoneNumber) {
@@ -110,7 +112,7 @@ dataRouter.post('/auctions/create', (req: Request, res: Response) => {
 
             // 2. 使用 Sharp 處理圖片
             const processedImages = await processImages(files);
-            
+
             // 分離出兩個陣列
             const images = processedImages.map(p => p.full);      // 大圖
             const thumbnails = processedImages.map(p => p.thumb); // 縮圖
@@ -130,13 +132,13 @@ dataRouter.post('/auctions/create', (req: Request, res: Response) => {
                 createdAt: new Date()
             };
 
-            if(req.body.mode === 'true'){
+            if (req.body.mode === 'true') {
                 // 直購模式
                 const { itemName, itemDescription, price, stock, category } = req.body;
                 if (!itemName || !itemDescription || !price || !stock || !category) {
-                    return res.status(400).json({success: false, message: 'Sale Mode: Missing fields'});
+                    return res.status(400).json({ success: false, message: 'Sale Mode: Missing fields' });
                 }
-                
+
                 result = await db.collection('auctionItems').insertOne({
                     ...baseItem,
                     dSale: true,
@@ -147,7 +149,7 @@ dataRouter.post('/auctions/create', (req: Request, res: Response) => {
                 // 競標模式
                 const { itemName, itemDescription, startPrice, reservePrice, duration, category } = req.body;
                 if (!itemName || !itemDescription || !startPrice || !duration || !category) {
-                    return res.status(400).json({success: false, message: 'Auction Mode: Missing fields'});
+                    return res.status(400).json({ success: false, message: 'Auction Mode: Missing fields' });
                 }
 
                 const endTime = new Date();
@@ -180,11 +182,11 @@ dataRouter.post('/auctions/create', (req: Request, res: Response) => {
 dataRouter.get('/auctions', async (req: Request, res: Response) => {
     try {
         const db = await connectDB();
-        
+
         const { category, minPrice, maxPrice, type, search } = req.query;
         const query: any = { status: 'active' };
 
-        if (category && typeof category === 'string' && category !== 'all') query.category = category; 
+        if (category && typeof category === 'string' && category !== 'all') query.category = category;
         if (search && typeof search === 'string') query.title = { $regex: search, $options: 'i' };
         if (type === 'auction') query.dSale = false;
         else if (type === 'direct') query.dSale = true;
@@ -208,27 +210,27 @@ dataRouter.get('/auctions', async (req: Request, res: Response) => {
             .sort({ createdAt: -1 })
             .limit(20)
             // ★ 優化：只抓取需要的欄位 (不抓大圖 images)
-            .project({ 
-                title: 1, price: 1, currentPrice: 1, 
-                endTime: 1, dSale: 1, stock: 1, status: 1, 
+            .project({
+                title: 1, price: 1, currentPrice: 1,
+                endTime: 1, dSale: 1, stock: 1, status: 1,
                 thumbnails: 1, images: 1 // images 還是先抓，以防舊資料沒有 thumbnails
             })
             .toArray();
 
         const now = new Date();
-        
+
         const formatted = items.map(item => {
             // ★ 圖片選取邏輯：優先使用 thumbnails[0]，如果沒有 (舊資料)，才用 images[0]
-            const displayImage = (item.thumbnails && item.thumbnails.length > 0) 
-                ? item.thumbnails[0] 
+            const displayImage = (item.thumbnails && item.thumbnails.length > 0)
+                ? item.thumbnails[0]
                 : (item.images && item.images.length > 0 ? item.images[0] : '/Image/default-item.jpg');
 
             if (item.dSale) {
-                if(item.stock <= 0){
-                    db.collection('auctionItems').updateOne({_id: item._id},{$set: { status: 'inactive' }});
-                    return null; 
+                if (item.stock <= 0) {
+                    db.collection('auctionItems').updateOne({ _id: item._id }, { $set: { status: 'inactive' } });
+                    return null;
                 }
-                return{
+                return {
                     dSale: true,
                     _id: item._id.toString(),
                     title: item.title,
@@ -237,7 +239,7 @@ dataRouter.get('/auctions', async (req: Request, res: Response) => {
                     stock: item.stock || 'err'
                 }
             }
-            
+
             const remainingMs = new Date(item.endTime).getTime() - now.getTime();
             let timeLeft = '';
 
@@ -302,13 +304,13 @@ dataRouter.get('/auctions/:id', async (req: Request, res: Response) => {
             title: item.title,
             description: item.description || 'No description available',
             // 詳情頁回傳高品質圖片
-            images: item.images || [], 
+            images: item.images || [],
             dSale: !!item.dSale,
             sellerId: item.sellerId?.toString() || null,
             sellerName: seller?.name || 'Anonymous'
         };
 
-        if(item.dSale){
+        if (item.dSale) {
             res.json({
                 success: true,
                 item: {
@@ -347,6 +349,7 @@ dataRouter.post('/auctions/:id/bid', async (req: Request, res: Response) => {
     }
 
     const bidAmount = Number(rawAmount);
+    const bidderId = req.session.user.id;
 
     try {
         const db = await connectDB();
@@ -366,6 +369,27 @@ dataRouter.post('/auctions/:id/bid', async (req: Request, res: Response) => {
                 message: 'Bid must be higher than current price',
                 currentPrice: item.currentPrice
             });
+        }
+
+        let previousBidderId = null;
+        if (item.bids && item.bids.length > 0) {
+            const lastBid = item.bids[item.bids.length - 1];
+            previousBidderId = lastBid.bidderId;
+        }
+
+        // B. 如果有前一位出價者，且不是我自己 (避免自己超越自己時收到通知)
+        if (previousBidderId && previousBidderId.toString() !== bidderId) {
+            // 寫入通知
+            await db.collection('notifications').insertOne({
+                userId: new ObjectId(previousBidderId), // 通知對象：前任贏家
+                type: 'outbid',
+                title: '⚠️ 您的出價已被超越！',
+                message: `您在 "${item.title}" 的出價已被超越，目前最高價為 $${bidAmount}。`,
+                itemId: item._id, // 方便前端做跳轉
+                isRead: false,
+                createdAt: new Date()
+            });
+            console.log(`Outbid notification sent to user ${previousBidderId}`);
         }
 
         await db.collection('auctionItems').updateOne(
@@ -429,10 +453,10 @@ dataRouter.get('/myItems', async (req: Request, res: Response) => {
         const formatted = items.map(item => {
             const isDirect = !!item.dSale;
             // 優先使用縮圖
-            const displayImage = (item.thumbnails && item.thumbnails.length > 0) 
-                ? item.thumbnails[0] 
+            const displayImage = (item.thumbnails && item.thumbnails.length > 0)
+                ? item.thumbnails[0]
                 : (item.images && item.images.length > 0 ? item.images[0] : '/Image/default-item.jpg');
-            
+
             let timeLeft = '';
             if (!isDirect && item.endTime) {
                 const remainingMs = new Date(item.endTime).getTime() - now.getTime();
@@ -483,7 +507,7 @@ dataRouter.get('/auctions/:id/edit', async (req: Request, res: Response) => {
                 title: item.title,
                 description: item.description || '',
                 // 編輯時通常需要看大圖確認
-                images: item.images || [], 
+                images: item.images || [],
                 dSale: !!item.dSale,
                 price: item.price ?? item.startPrice ?? null,
                 stock: item.stock ?? null,
@@ -564,7 +588,7 @@ dataRouter.post('/auctions/:id/edit', (req: Request, res: Response) => {
                         const sp = Number(req.body.startPrice);
                         if (isNaN(sp) || sp <= 0) return res.status(400).json({ success: false, message: 'Invalid startPrice' });
                         updates.startPrice = sp;
-                        updates.currentPrice = sp; 
+                        updates.currentPrice = sp;
                     }
                     if (req.body.extendDays) {
                         const extendDays = parseInt(String(req.body.extendDays), 10);
@@ -583,13 +607,13 @@ dataRouter.post('/auctions/:id/edit', (req: Request, res: Response) => {
 
             // 合併所有更新操作
             const finalUpdate: any = {};
-            
+
             // 1. 一般欄位更新
             if (Object.keys(updates).length > 0) Object.assign(setOps, updates);
-            
+
             // 2. 放入 $set
             if (Object.keys(setOps).length > 0) finalUpdate.$set = setOps;
-            
+
             // 3. 放入 $push
             if (Object.keys(pushOps).length > 0) finalUpdate.$push = pushOps;
 
@@ -655,8 +679,8 @@ dataRouter.post('/auctions/:id/buy/:amt', async (req: Request, res: Response) =>
 
         // 2. 加入購物車 (Cart)
         // 使用縮圖存入購物車 (如果有縮圖就用縮圖，沒有用大圖)
-        const cartImage = (item.thumbnails && item.thumbnails.length > 0) 
-            ? item.thumbnails[0] 
+        const cartImage = (item.thumbnails && item.thumbnails.length > 0)
+            ? item.thumbnails[0]
             : (item.images && item.images.length > 0 ? item.images[0] : '/Image/default-item.jpg');
 
         await db.collection('cart').insertOne({
