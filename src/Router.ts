@@ -4,6 +4,7 @@ import sessionInfo from './getSessionInfo.js';
 import dataRouter from "./dataManipulation.js";
 import DBreader from "./getDBdata.js";
 import chatRouter from "./chat.js";
+import notificationRouter from './notificationRouter.js'; 
 import { getCartItems, checkout, addDirectBuyToCart } from './cartService.js'; 
 import { runScheduledCleanup } from './auctionService.js';
 
@@ -65,25 +66,25 @@ mainRouter.post('/checkout', async (req, res) => {
     }
 });
 
-// 3. 直購 (Buy Now) 
+// 直購路由
 mainRouter.post('/auction/buy-now', async (req, res) => {
     try {
-        const userId = (req.session as any)?.user?.id || (req.session as any)?.user?._id;
-        const { itemId } = req.body;
+        // @ts-ignore
+        const userId = req.session?.user?.id;
+        if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-        if (!userId) {
-            res.status(401).json({ error: 'Unauthorized' });
-            return;
-        }
-        
-        await addDirectBuyToCart(userId, itemId);
-        res.json({ success: true });
+        const { itemId, quantity } = req.body; // 前端傳來的資料
+        const qty = quantity || 1;
+
+        // 呼叫我們剛剛在 cartService.ts 加的函式
+        await addDirectBuyToCart(userId, itemId, qty);
+
+        res.json({ success: true, message: 'Added to cart' });
     } catch (error: any) {
-        console.error('Buy Now error:', error);
-        res.status(400).json({ error: error.message || 'Failed to buy item' });
+        console.error(error);
+        res.status(400).json({ error: error.message || 'Failed to add to cart' });
     }
 });
-
 
 mainRouter.get('/test-force-cleanup', async (req, res) => {
     try {
@@ -93,5 +94,7 @@ mainRouter.get('/test-force-cleanup', async (req, res) => {
         res.status(500).send('Error during cleanup');
     }
 });
+
+mainRouter.use('/notifications', notificationRouter);
 
 export default mainRouter;

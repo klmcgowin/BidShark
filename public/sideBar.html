@@ -1,6 +1,31 @@
 <div class="sidebar">
     <div class="everything">
-        <div class="lego">海大拍賣系統</div>
+        <div class="sidebar-header">
+            <div class="lego">海大拍賣系統</div>
+
+            <!-- 通知鈴鐺容器 -->
+            <div class="notification-wrapper" id="notifyWrapper">
+                <button id="notifyBtn" class="notify-btn">
+                    <!-- 鈴鐺 SVG Icon -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <!-- 紅點 (有未讀時顯示) -->
+                    <span id="notifyDot" class="notify-dot" style="display: none;"></span>
+                </button>
+
+                <!-- 通知下拉選單 (預設隱藏) -->
+                <div id="notifyDropdown" class="notify-dropdown">
+                    <div class="notify-header">Notifications</div>
+                    <div id="notifyList" class="notify-list">
+                        <!-- JS 會把通知塞在這裡 -->
+                        <div class="empty-notify">No new notifications</div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="nav-section">
             <div class="nav-title">Discover</div>
             <a href="homePage.html" class="nav-item" onclick="window.location.href='homePage.html'">
@@ -30,6 +55,8 @@
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                 </svg>
                 Chat
+                <span id="chatUnreadDot" class="notify-dot"
+                    style="display: none; position: relative; top: 0; right: auto; margin-left: 10px;"></span>
             </a>
             <a href="myItem.html" id="upload" class="nav-item inactive">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -37,7 +64,8 @@
                 </svg>
                 Upload
             </a>
-            <a href="userProfile.html" id="profile" class="nav-item inactive" onclick="window.location.href='userProfile.html'">
+            <a href="userProfile.html" id="profile" class="nav-item inactive"
+                onclick="window.location.href='userProfile.html'">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="8" r="4"></circle>
                     <path d="M4 20c0-4 4-7 8-7s8 3 8 7"></path>

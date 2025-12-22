@@ -58,6 +58,109 @@ export async function collapse() {
             }
         });
     }
+    const notifyBtn = document.getElementById('notifyBtn');
+    const notifyDot = document.getElementById('notifyDot');
+    const notifyDropdown = document.getElementById('notifyDropdown');
+    const notifyList = document.getElementById('notifyList');
+
+    async function fetchNotifications() {
+        try {
+            // 使用相對路徑 fetch
+            const res = await fetch('/api/notifications');
+            if (res.status === 401) return; // 未登入就不動作
+
+            const data = await res.json();
+
+            // 1. 控制紅點
+            if (data.unreadCount > 0) {
+                notifyDot.style.display = 'block';
+            } else {
+                notifyDot.style.display = 'none';
+            }
+
+            // 2. 如果下拉選單是開著的，或者為了隨時準備好資料，可以更新列表
+            // 為了效能，這裡我們只存資料，等點開時再 render，或是簡單地直接 render
+            renderNotifications(data.notifications);
+
+        } catch (err) {
+            console.error("Fetch notify failed", err);
+        }
+    }
+
+    async function checkChatUnread() {
+        try {
+            const res = await fetch('/api/chat/checkUnread');
+            if (res.ok) {
+                const data = await res.json();
+                const dot = document.getElementById('chatUnreadDot');
+                if (dot) {
+                    dot.style.display = data.hasUnread ? 'inline-block' : 'none';
+                }
+            }
+        } catch (e) { console.error(e); }
+    }
+
+
+    function renderNotifications(items) {
+        if (!items || items.length === 0) {
+            notifyList.innerHTML = '<div class="empty-notify">No notifications</div>';
+            return;
+        }
+
+        notifyList.innerHTML = items.map(item => `
+            <div class="notify-item ${item.isRead ? '' : 'unread'}">
+                <span class="notify-title">${item.title}</span>
+                <span class="notify-msg">${item.message}</span>
+                <div style="font-size:11px; color:#aaa; margin-top:4px;">
+                    ${new Date(item.createdAt).toLocaleString()}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    if (notifyBtn) {
+        // 點擊鈴鐺
+        notifyBtn.addEventListener('click', async (e) => {
+            e.stopPropagation(); // 防止事件冒泡
+
+            // 切換 active class
+            const isActive = notifyDropdown.classList.contains('active');
+
+            if (isActive) {
+                // 如果已經打開，就關閉
+                notifyDropdown.classList.remove('active');
+            } else {
+                // 如果沒打開，就打開
+                notifyDropdown.classList.add('active');
+
+                // 如果有紅點，標記為已讀
+                if (notifyDot.style.display !== 'none') {
+                    await fetch('/api/notifications/mark-read', { method: 'POST' });
+                    notifyDot.style.display = 'none';
+                    fetchNotifications();
+                }
+            }
+        });
+
+        // 點擊外部關閉選單
+        document.addEventListener('click', (e) => {
+            // 如果點擊的地方既不是鈴鐺按鈕，也不是下拉選單本身
+            if (!notifyBtn.contains(e.target) && !notifyDropdown.contains(e.target)) {
+                notifyDropdown.classList.remove('active');
+            }
+        });
+
+        // 初始執行一次
+        fetchNotifications();
+
+        // 輪詢 Polling (每 10 秒檢查一次)
+        setInterval(() => {
+            fetchNotifications(); // 原本的通知
+            checkChatUnread();    // 新的聊天紅點
+        }, 5000);
+
+        checkChatUnread();
+    }
 
     // === Dark Mode Toggle 邏輯 ===
     const darkModeToggle = document.getElementById('darkModeToggle');

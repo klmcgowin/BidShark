@@ -52,9 +52,9 @@
 }
 
 .lego {
+    margin-bottom: 0;
     font-size: 18px;
     font-weight: 700;
-    margin-bottom: 40px;
     color: var(--text-color);
 }
 
@@ -142,12 +142,12 @@ body {
 .nav-item:hover {
     background-color: rgba(0, 0, 0, 0.05);
     color: var(--text-color) !important;
-    text-decoration: none !important; 
+    text-decoration: none !important;
 }
 
 body.dark-mode .nav-item:hover {
     background-color: rgba(255, 255, 255, 0.1);
-    color: var(--text-color) !important; 
+    color: var(--text-color) !important;
 }
 
 /* 按鈕樣式 */
@@ -271,17 +271,20 @@ input:checked+.slider:before {
 .sidebar.mobile {
     position: fixed;
     top: 0;
-    left: 0; /* 預設位置由 transform 控制 */
-    width: 280px; /* 手機版稍微寬一點比較好按 */
-    
+    left: 0;
+    /* 預設位置由 transform 控制 */
+    width: 280px;
+    /* 手機版稍微寬一點比較好按 */
+
     /* 🔥 修復高度：同樣使用 dvh */
     height: 100vh;
     height: 100dvh;
-    
-    z-index: 2000; /* 提高層級，蓋過內容 */
-    box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+
+    z-index: 2000;
+    /* 提高層級，蓋過內容 */
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
     background: var(--sidebar-bg, #fff);
-    
+
     /* 預設隱藏在左邊 */
     transform: translateX(-100%);
     transition: transform 0.3s ease;
@@ -292,38 +295,191 @@ input:checked+.slider:before {
     transform: translateX(0);
 }
 
+/*讓標題與鈴鐺橫排 */
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.notification-wrapper {
+    position: relative;
+    /* 為了讓下拉選單定位 */
+}
+
+.notify-btn {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    position: relative;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notify-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* 紅點樣式 */
+.notify-dot {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 8px;
+    height: 8px;
+    background-color: #ff4d4f;
+    border-radius: 50%;
+    border: 1px solid var(--sidebar-bg);
+    /* 讓紅點有點邊距感 */
+}
+
+/* 下拉選單樣式 */
+.notify-dropdown {
+    display: none !important; /* 🔥 強制預設隱藏 */
+    position: absolute;
+    top: 100%;
+    right: -10px;
+    width: 200px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 2000;
+    overflow: hidden;
+    max-height: 400px;
+    flex-direction: column;
+}
+
+/* 只有加上 active 才顯示 */
+.notify-dropdown.active {
+    display: flex !important;
+}
+
+.notify-header {
+    padding: 10px 15px;
+    font-weight: bold;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--sidebar-bg);
+    color: var(--text-color);
+}
+
+.notify-list {
+    overflow-y: auto;
+    max-height: 350px;
+}
+
+.notify-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 14px;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.notify-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+body.dark-mode .notify-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.notify-item.unread {
+    background-color: rgba(0, 123, 255, 0.05);
+    /* 未讀的稍微亮一點 */
+    border-left: 3px solid #007bff;
+}
+
+.notify-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.notify-msg {
+    color: #888;
+    font-size: 13px;
+    display: block;
+}
+
+.empty-notify {
+    padding: 20px;
+    text-align: center;
+    color: #999;
+    font-size: 13px;
+}
+
 /* 手機版樣式 */
 @media (max-width: 900px) {
     .main-content {
         margin-left: 0 !important;
         padding: 16px !important;
-        width: 100%; /* 確保內容滿版 */
+        width: 100%;
+        /* 確保內容滿版 */
     }
 
     /* 隱藏原本電腦版的 Toggle 按鈕 */
-    #toggleSidebar, .toggle-btn {
+    #toggleSidebar,
+    .toggle-btn {
         display: none !important;
     }
 
     /* item card adjustments */
-    .item-content { grid-template-columns: 80px 1fr 100px; gap: 8px; }
-    .item-img { border-radius: 6px; }
+    .item-content {
+        grid-template-columns: 80px 1fr 100px;
+        gap: 8px;
+    }
+
+    .item-img {
+        border-radius: 6px;
+    }
 
     /* form inputs full width */
-    input, textarea, select { font-size: 15px; }
+    input,
+    textarea,
+    select {
+        font-size: 15px;
+    }
 }
 
 /* Make images responsive and ensure list thumbnails behave */
-img { max-width: 100%; height: auto; display: block; }
-.item-img, .card-img-top, .item-image img { width: 100%; height: auto; object-fit: cover; }
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.item-img,
+.card-img-top,
+.item-image img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
 
 /* Use CSS variable for main content left margin so layouts adapt when sidebar collapsed */
-:root { --sidebar-width: 240px; }
-.main-content { margin-left: var(--sidebar-width); }
-.sidebar.collapsed ~ .main-content { margin-left: 2vw; }
+:root {
+    --sidebar-width: 240px;
+}
+
+.main-content {
+    margin-left: var(--sidebar-width);
+}
+
+.sidebar.collapsed~.main-content {
+    margin-left: 2vw;
+}
 
 /* Ensure interactive elements are touch-friendly */
-button, .btn, a.nav-item {
+button,
+.btn,
+a.nav-item {
     min-height: 44px;
     min-width: 44px;
     padding: 8px 12px;
