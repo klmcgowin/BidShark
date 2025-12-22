@@ -114,10 +114,19 @@ async function loadMyItems() {
                     </div>
                 </div>
             `;
-            // click card -> go to it's auction page
-            card.addEventListener('click', () => {
-                window.location.href = `editItem.html?id=${item._id}`;
-            });
+            // === 判斷狀態是否允許跳轉 === 
+             if (statusClass === 'status-fail' || statusClass === 'status-sold') {
+                // 1. 設定滑鼠游標為預設 (不是手指形狀)
+                card.style.cursor = 'default';
+                
+                // 2. (選用) 可以稍微降低透明度，讓它看起來像無效狀態
+                card.style.opacity = '0.7'; 
+            } else {
+                // 只有狀態不是 fail 時，才允許點擊跳轉
+                card.addEventListener('click', () => {
+                    window.location.href = `editItem.html?id=${item._id}`;
+                });
+            }
             container.appendChild(card);
         });
     } catch (err) {
