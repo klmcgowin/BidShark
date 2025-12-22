@@ -1,4 +1,6 @@
 import * as sideBar from './sideBar.js';
+// 引入 browser-image-compression 套件
+import imageCompression from 'https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.mjs';
 
 fetch('sideBar.html')
     .then(res => res.text())
@@ -25,7 +27,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // 圖片預覽
     fileInput?.addEventListener('change', () => {
         if (!uploadLabel) return;
-        // 清除舊預覽
         uploadLabel.querySelectorAll('.preview').forEach(el => el.remove());
 
         const files = fileInput.files;
@@ -51,19 +52,66 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // 表單提交
+    // 表單提交 
     uploadForm?.addEventListener('submit', async function (e) {
         e.preventDefault();
+
+        const files = fileInput.files;
+        // 1. 檢查是否有檔案
+        if (files.length === 0) {
+            alert('Please select at least one image.');
+            return;
+        }
 
         const submitBtn = document.querySelector('.btn-submit');
         if (submitBtn) {
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Uploading...';
+            submitBtn.textContent = 'Compressing & Uploading...';
         }
 
         const formData = new FormData(uploadForm);
+        
+        // 移除原本的未壓縮檔案
+        formData.delete('itemImage'); 
+
+        const options = {
+            maxSizeMB: 0.8,
+            maxWidthOrHeight: 1280,
+            useWebWorker: true,
+            fileType: 'image/jpeg'
+        };
 
         try {
+            // 2. 壓縮圖片
+            const compressPromises = Array.from(files).map(async (originalFile) => {
+                // 如果不是圖片，回傳原檔
+                if (!originalFile.type.startsWith('image/')) return originalFile;
+                
+                try {
+                    console.log(`Compressing ${originalFile.name}...`);
+                    const compressedBlob = await imageCompression(originalFile, options);
+                    
+                    // 🔥【關鍵修正】強制轉回 File 物件並保留原始檔名
+                    // Multer 需要 filename 才能識別這是檔案
+                    return new File([compressedBlob], originalFile.name, { 
+                        type: compressedBlob.type || originalFile.type 
+                    });
+
+                } catch (error) {
+                    console.error("Compression failed for", originalFile.name, error);
+                    // 壓縮失敗回傳原檔
+                    return originalFile; 
+                }
+            });
+
+            const compressedFiles = await Promise.all(compressPromises);
+
+            // 3. 將帶有檔名的檔案加回 FormData
+            compressedFiles.forEach(file => {
+                formData.append('itemImage', file);
+            });
+
+            // 4. 發送請求
             const response = await fetch('/api/data/auctions/create', {
                 method: 'POST',
                 body: formData
@@ -72,28 +120,29 @@ document.addEventListener('DOMContentLoaded', function () {
             const result = await response.json();
 
             if (result.success) {
-                alert('Auction item uploaded successfull!');
+                alert('Auction item uploaded successfully!');
                 uploadForm.reset();
                 if (uploadLabel) {
                     uploadLabel.querySelectorAll('.preview').forEach(el => el.remove());
                 }
-                // 可選：跳轉到我的拍賣品頁面
-                // window.location.href = '/myItems.html';
+                window.location.href = '/myItem.html';
             } else {
-                alert('Upload Failed：' + result.message);
+                alert('Upload Failed: ' + result.message);
             }
         } catch (err) {
             console.error(err);
-            alert('Network error. Please check if you are logged in or try again later.');
+            alert('Network error or compression error. Please try again.');
         } finally {
             if (submitBtn) {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Start Auction';
+                const isDirect = document.getElementById('modeSwitch').checked;
+                submitBtn.textContent = isDirect ? 'Start Sale' : 'Start Auction';
             }
         }
     });
 });
-//switch logic
+
+// 切換拍賣/直購模式的 HTML 
 const auctionHTML = `
     <h2 class="section-title">Auction Details</h2>
     <div class="grid-2">
@@ -125,12 +174,14 @@ const directSaleHTML = `
         </div>
     </div>
 `;
+
 document.getElementById('modeSwitch').addEventListener('change', function (e) {
+    const btn = document.getElementById('sbtn');
     if (this.checked) {
         document.getElementById('salePanel').innerHTML = directSaleHTML;
-        document.getElementById('sbtn').textContent = 'Start Sale';
+        if(btn) btn.textContent = 'Start Sale';
     } else {
         document.getElementById('salePanel').innerHTML = auctionHTML;
-        document.getElementById('sbtn').textContent = 'Start Auction';
+        if(btn) btn.textContent = 'Start Auction';
     }
 });
