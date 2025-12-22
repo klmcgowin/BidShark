@@ -168,7 +168,7 @@ async function handleCheckout() {
         const result = await res.json();
         
         if(res.ok) {
-            alert('🎉 訂單已建立成功！感謝您的購買。');
+            alert('訂單已建立成功！感謝您的購買。');
             // === 成功結帳後，跳轉回首頁或歷史訂單頁 ===
             window.location.href = '/homePage.html';
         } else {
