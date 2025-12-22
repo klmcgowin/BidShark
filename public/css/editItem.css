@@ -11,21 +11,25 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', sans-serif;
   background: var(--bg-color);
   color: var(--text-color);
+  min-height: 100vh; /* 確保背景色填滿 */
 }
 
 .main-content {
   margin-left: 240px;
   padding: 24px;
+  transition: margin-left 0.3s;
 }
 
 .page-title {
   font-size: 22px;
   margin-bottom: 12px;
+  color: var(--text-color);
 }
 
 .edit-form {
   max-width: 880px;
-  background: var(--sidebar-color);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   padding: 18px;
   border-radius: 8px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
@@ -40,14 +44,28 @@ body {
 .input-group label {
   font-weight: 600;
   margin-bottom: 6px;
+  color: var(--text-color);
 }
 
 .input-group input[type="text"],
 .input-group input[type="number"],
-.input-group textarea {
-  padding: 8px 10px;
+.input-group textarea,
+.input-group select {
+  padding: 10px;
   border: 1px solid var(--border-color);
   border-radius: 6px;
+  font-size: 15px;
+  
+  /* 確保背景是深色，文字是淺色 */
+  background-color: var(--bg-color); /* 比卡片稍微深一點，製造層次 */
+  color: var(--text-color);
+  transition: border-color 0.2s;
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+  outline: none;
+  border-color: #007bff;
 }
 
 .existing-images {
@@ -74,26 +92,43 @@ body {
 
 #saveBtn {
   background: #007bff;
-  color: var(--sidebar-color);
-  padding: 10px 16px;
+  color: white; 
+  padding: 10px 20px;
   border-radius: 8px;
   border: none;
   cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+#saveBtn:hover {
+  opacity: 0.9;
 }
 
 .status {
   margin-bottom: 10px;
-  color:  var(--text-color);
+  color: var(--text-color);
   font-weight: 600;
 }
 
-@media (max-width:900px) {
+.btn-link{
+  text-decoration: none;
+  color: red;
+}
+
+@media (max-width: 900px) {
   .main-content {
-    margin-left: 80px;
+    margin-left: 0; 
     padding: 16px;
   }
 
   .edit-form {
+    padding: 16px;
+  }
+  
+  /* 讓按鈕在手機上好按一點 */
+  #saveBtn {
+    width: 100%; 
     padding: 12px;
   }
 }
