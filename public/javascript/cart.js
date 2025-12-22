@@ -81,7 +81,7 @@ async function loadCart() {
 
         const btnCheckout = document.getElementById('btn-checkout');
         if (btnCheckout) {
-             btnCheckout.onclick = goToCheckoutPage; // 設定為跳轉函式
+             btnCheckout.onclick = goToCheckoutPage; 
         }
 
     } catch (error) {
@@ -107,7 +107,6 @@ async function goToCheckoutPage() {
     const checkboxes = document.querySelectorAll('.cart-checkbox:checked');
     if (checkboxes.length === 0) { alert('請至少選擇一項商品'); return; }
 
-    // 儲存選中的 ID，讓 Checkout 頁面知道要結帳哪些
     const cartIds = Array.from(checkboxes).map(box => box.dataset.id);
     sessionStorage.setItem('selected_cart_ids', JSON.stringify(cartIds));
 
@@ -157,14 +156,22 @@ async function loadBids() {
         itemYouBid.forEach(item => {
             const div = document.createElement('div');
             div.className = 'col-md-4 col-sm-6';
+            
+            // 修改：加入 cursor: pointer 讓使用者知道可點擊
             div.innerHTML = `
-                <div class="card" style="width: 100%; margin-bottom: 20px;">
+                <div class="card" style="width: 100%; margin-bottom: 20px; cursor: pointer;">
                     <img class="card-img-top" src="${item.displayImage || '/Image/default-item.jpg'}" style="height: 150px; object-fit: cover;" onerror="this.src='/Image/default-item.jpg'">
                     <div class="card-body">
                         <h5 class="card-title">${item.title}</h5>
                         <p class="card-text">目前最高: <b>$${item.currentPrice}</b><br>你的出價: <b>$${item.yourBid ?? 0}</b></p>
                     </div>
                 </div>`;
+            
+            // 修改：為整個卡片加入點擊事件，跳轉到商品詳情頁
+            div.querySelector('.card').addEventListener('click', () => {
+                window.location.href = `auctionItem.html?id=${item._id}`;
+            });
+
             bidContainer.appendChild(div);
         });
     } catch (e) { bidContainer.innerHTML = '<p class="col-12 text-center text-muted">載入失敗</p>'; }

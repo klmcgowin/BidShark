@@ -8,7 +8,7 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', sans-serif;
-    background:var(--bg-color);
+    background: var(--bg-color);
     min-height: 100vh;
     display: flex;
     padding: 20px;
@@ -142,18 +142,21 @@ input.error {
 .divider::after {
     content: '';
     position: absolute;
+    flex: 1;
     top: 50%;
-    width: 42%;
+    width: 30%;
     height: 1px;
     background: #e0e0e0;
 }
 
 .divider::before {
     left: 0;
+    margin-right: 10px;
 }
 
 .divider::after {
     right: 0;
+    margin-left: 10px;
 }
 
 .btn-google {

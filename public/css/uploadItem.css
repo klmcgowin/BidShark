@@ -329,7 +329,7 @@ label {
 /* -------------------------
    Responsive
 ------------------------- */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     .main-content {
         margin-left: 200px;
         padding: 20px;

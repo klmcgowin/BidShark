@@ -9,11 +9,19 @@
     <script>
         (function () {
             const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') document.documentElement.classList.add('dark-mode');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark-mode');
+            }
         })();
     </script>
 </head>
 <body>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
     <div id="sidebar"></div>
 
     <div class="main-layout">
@@ -25,7 +33,7 @@
 
             <div class="checkout-grid">
                 <div class="left-column">
-                    
+
                     <section class="checkout-section">
                         <div class="section-header">
                             <h2><i class="fa-solid fa-location-dot"></i> 收件地址 Shipping Address</h2>
@@ -83,7 +91,7 @@
                         <div class="section-header">
                             <h2><i class="fa-regular fa-credit-card"></i> 付款方式 Payment</h2>
                         </div>
-                        
+
                         <div class="payment-tabs">
                             <button class="tab-btn active" data-target="credit-card">
                                 <i class="fa-brands fa-cc-visa"></i> 信用卡/簽帳卡
@@ -99,7 +107,8 @@
                                     <label>卡號 Card Number</label>
                                     <div class="icon-input">
                                         <i class="fa-regular fa-credit-card"></i>
-                                        <input type="text" id="cc-number" placeholder="0000 0000 0000 0000" maxlength="19">
+                                        <input type="text" id="cc-number" placeholder="0000 0000 0000 0000"
+                                            maxlength="19">
                                     </div>
                                     <div class="card-icons">
                                         <i class="fa-brands fa-cc-visa" style="color:#1a1f71;"></i>
@@ -117,7 +126,8 @@
                                         <input type="text" id="cc-expiry" placeholder="MM/YY" maxlength="5">
                                     </div>
                                     <div class="input-group">
-                                        <label>安全碼 CVV <i class="fa-solid fa-circle-question" title="卡片背後末三碼"></i></label>
+                                        <label>安全碼 CVV <i class="fa-solid fa-circle-question"
+                                                title="卡片背後末三碼"></i></label>
                                         <div class="icon-input">
                                             <i class="fa-solid fa-lock"></i>
                                             <input type="password" id="cc-cvv" placeholder="123" maxlength="3">
@@ -125,7 +135,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="secure-note"><i class="fa-solid fa-shield-halved"></i> 您的卡號資訊將經過加密處理，我們不會儲存您的完整卡號。</p>
+                            <p class="secure-note"><i class="fa-solid fa-shield-halved"></i> 您的卡號資訊將經過加密處理，我們不會儲存您的完整卡號。
+                            </p>
                         </div>
 
                         <div id="cod-content" class="payment-content">
@@ -154,7 +165,7 @@
                             <span>結帳總金額</span>
                             <span id="grandTotal">NT$0</span>
                         </div>
-                        
+
                         <button id="placeOrderBtn" class="btn-primary-large">
                             立即結帳 Place Order
                         </button>

@@ -20,13 +20,29 @@ body.dark-mode {
     --focus-border: #007bff;
     --primary-color: #007bff; /* 暗色模式用藍色比較舒服 */
 }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+}
 
 /* === 佈局 === */
 .main-layout {
-    margin-left: 240px;
+    margin-left: 240px; /* 配合 Sidebar */
     padding: 40px;
-    background-color: var(--bg-color);
-    min-height: 100vh;
+    transition: margin-left 0.3s;
+}
+
+/* Sidebar 收起時的修正 */
+body.sidebar-collapsed .main-layout {
+    margin-left: 60px; /* 視你的 sidebar 收起寬度而定 */
 }
 
 .checkout-container {
@@ -36,36 +52,30 @@ body.dark-mode {
 
 .page-header {
     margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .page-header h1 {
-    font-size: 24px;
+    font-size: 28px;
     color: var(--text-color);
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    font-weight: 700;
 }
 
-.page-header p {
-    color: #888;
-    font-size: 14px;
-    margin-top: 5px;
-    margin-left: 34px;
-}
-
+/* 雙欄佈局：左邊填寫資料，右邊結帳摘要 */
 .checkout-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 25px;
+    grid-template-columns: 2fr 1fr; /* 左 2 : 右 1 */
+    gap: 30px;
 }
 
 /* === 卡片通用樣式 === */
 .checkout-section {
     background: var(--card-bg);
-    border-radius: 8px;
+    border-radius: 12px;
     padding: 25px;
-    margin-bottom: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
     border: 1px solid var(--border-color);
 }
 
@@ -75,6 +85,7 @@ body.dark-mode {
     padding-bottom: 15px;
     border-bottom: 1px solid var(--border-color);
     color: var(--text-color);
+    font-weight: 600;
 }
 
 /* === 表單輸入框 === */
@@ -85,6 +96,11 @@ body.dark-mode {
     margin-bottom: 15px;
 }
 
+/* 讓某些欄位跨欄 (例如卡號) */
+.full-width {
+    grid-column: span 2;
+}
+
 .input-group {
     margin-bottom: 15px;
     display: flex;
@@ -92,26 +108,27 @@ body.dark-mode {
 }
 
 .input-group label {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     margin-bottom: 8px;
     color: var(--text-color);
 }
 
 .input-group input {
-    padding: 12px;
+    width: 100%; /* 強制填滿 */
+    padding: 12px 15px;
     border: 1px solid var(--border-color);
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 15px;
     background: var(--input-bg);
     color: var(--text-color);
-    transition: 0.3s;
+    transition: all 0.2s;
 }
 
 .input-group input:focus {
     border-color: var(--focus-border);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(238, 77, 45, 0.1);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 /* === 寄送方式選擇 === */
@@ -128,20 +145,24 @@ body.dark-mode {
     cursor: pointer;
     position: relative;
     transition: 0.2s;
+    background: var(--input-bg);
 }
 
 .radio-card:hover {
     border-color: #aaa;
 }
 
+/* 選中狀態 */
 .radio-card.selected {
     border-color: var(--primary-color);
-    background-color: rgba(238, 77, 45, 0.02);
+    background-color: rgba(0, 123, 255, 0.05);
 }
 
 .radio-card input {
     position: absolute;
     opacity: 0;
+    cursor: pointer;
+    inset: 0; /* 讓點擊範圍覆蓋整個卡片 */
 }
 
 .radio-content {
@@ -149,15 +170,15 @@ body.dark-mode {
     justify-content: space-between;
     font-weight: bold;
     color: var(--text-color);
+    margin-bottom: 5px;
 }
 
 .method-desc {
     font-size: 12px;
     color: #888;
-    margin-top: 5px;
 }
 
-/* === 付款介面 (重點) === */
+/* === 付款介面 === */
 .payment-tabs {
     display: flex;
     gap: 10px;
@@ -172,85 +193,69 @@ body.dark-mode {
     border-radius: 6px;
     cursor: pointer;
     font-weight: 500;
+    transition: 0.2s;
 }
 
 .tab-btn.active {
     border-color: var(--primary-color);
     color: var(--primary-color);
-    background: rgba(238, 77, 45, 0.05);
+    background: rgba(0, 123, 255, 0.05);
 }
 
-.payment-content {
-    display: none;
-}
-
-.payment-content.active {
-    display: block;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* 信用卡專屬樣式 */
+/* 信用卡輸入區塊 */
 .card-visual-input {
-    background: #f8f9fa; /* 淺灰底色區分 */
+    background: var(--bg-color); /* 用稍深的背景區分 */
     padding: 20px;
     border-radius: 8px;
     border: 1px solid var(--border-color);
 }
 
-.dark-mode .card-visual-input {
-    background: #252525;
-}
-
 .icon-input {
     position: relative;
-}
-
-.icon-input i {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #888;
-}
-
-.icon-input input {
-    padding-left: 35px; /* 留位置給 Icon */
     width: 100%;
 }
 
+/* 卡號輸入框前面的圖示 */
+.icon-input i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    z-index: 10;
+}
+
+/* 卡號輸入框內距調整 */
+.icon-input input {
+    padding-left: 45px !important; /* 留空間給 icon */
+}
+
 .card-icons {
-    margin-top: 8px;
+    margin-top: 10px;
     font-size: 24px;
     display: flex;
     gap: 10px;
+    color: #888;
 }
 
 .secure-note {
     margin-top: 15px;
     font-size: 12px;
-    color: #28a745; /* 綠色代表安全 */
+    color: #28a745;
     display: flex;
     align-items: center;
     gap: 5px;
 }
 
-/* === 訂單摘要 (Sticky) === */
-.right-column {
-    position: relative;
-}
-
+/* === 訂單摘要 (Sticky Right Column) === */
 .summary-card {
     background: var(--card-bg);
     padding: 25px;
-    border-radius: 8px;
+    border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     position: sticky;
-    top: 20px;
+    top: 20px; /* 滾動時固定在頂部 */
+    border: 1px solid var(--border-color);
 }
 
 .summary-row {
@@ -269,17 +274,17 @@ body.dark-mode {
 
 .summary-row.total {
     font-size: 20px;
-    font-weight: bold;
-    color: var(--primary-color);
+    font-weight: 800;
+    color: var(--primary-color); /* 總金額顏色 */
 }
 
 .btn-primary-large {
     width: 100%;
     padding: 15px;
     background: var(--primary-color);
-    color: white;
+    color: var(--btn-text-color);
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 18px;
     font-weight: bold;
     cursor: pointer;
@@ -288,8 +293,8 @@ body.dark-mode {
 }
 
 .btn-primary-large:hover {
-    filter: brightness(1.1);
-    box-shadow: 0 4px 10px rgba(238, 77, 45, 0.3);
+    opacity: 0.9;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
 }
 
 .trust-badges {
@@ -301,16 +306,42 @@ body.dark-mode {
     color: #888;
 }
 
-/* 商品列表微調 */
-.cart-item-row {
-    display: flex;
-    gap: 15px;
-    padding: 15px 0;
-    border-bottom: 1px solid var(--border-color);
+.payment-content {
+    display: none !important; /* 使用 !important 強制覆蓋 */
 }
-.cart-item-row img {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 4px;
+
+.payment-content.active {
+    display: block !important;
+    animation: fadeIn 0.3s ease;
+}
+
+.payment-content:not(:has(.card-visual-input)) {
+    background: var(--bg-color); /* 深色背景 */
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    margin-top: 10px;
+}
+
+/* === RWD 手機版適配 === */
+@media (max-width: 900px) {
+    body{
+        max-width: 100vw;
+    }
+    .main-layout {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .checkout-grid {
+        grid-template-columns: 1fr; /* 手機版改為單欄 */
+    }
+
+    .form-row {
+        grid-template-columns: 1fr; /* 輸入框改為垂直排列 */
+    }
+    
+    .full-width {
+        grid-column: span 1;
+    }
 }

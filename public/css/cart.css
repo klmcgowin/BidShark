@@ -274,7 +274,7 @@ body {
 
 
 /* --- 響應式調整 --- */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     .main-content {
         margin-left: 0;
         padding: 20px;
