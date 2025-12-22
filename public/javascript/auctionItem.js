@@ -107,7 +107,7 @@ async function loadItem() {
     }
 
     if(itemData.dSale){
-        dSaleItems(itemData);
+        dSaleItems(itemData, isOwner); // 傳入 isOwner
         return;
     }
     // 基本資訊
@@ -160,7 +160,7 @@ function startCountdown(endTimeStr) {
   }, 1000);
 }
 
-// 出價
+// 出價 (拍賣模式)
 elements.placeBidBtn.addEventListener('click', async () => {
     const bidValue = elements.bidAmount.value.trim();
     if (!bidValue || isNaN(bidValue) || Number(bidValue) <= 0) {
@@ -202,6 +202,7 @@ elements.placeBidBtn.addEventListener('click', async () => {
 // 啟動
 document.addEventListener('DOMContentLoaded', loadItem);
 
+// === 關鍵修改：直購模式處理 ===
 function dSaleItems(itemData, isOwner) {
     document.getElementById("blah").innerHTML = `
         <div class="info-box">
@@ -214,7 +215,7 @@ function dSaleItems(itemData, isOwner) {
         </div>
     `;
     document.getElementById("quantity").textContent = itemData.stock + ' left';
-    document.getElementById("price").textContent = `NT$${itemData.price}`;
+    document.getElementById("price").textContent = `NT$${itemData.price || itemData.buyNowPrice}`; // 相容性修正
 
     if (isOwner) {
         document.getElementById("bidSection").innerHTML = `
@@ -224,36 +225,41 @@ function dSaleItems(itemData, isOwner) {
     }
 
     if(itemData.stock <= 0){
-        document.getElementById("bidSection").innerHTML = `Sold out`;
-    }else {
+        document.getElementById("bidSection").innerHTML = `<div style="color:red; font-weight:bold;">Sold out</div>`;
+    } else {
+        // 因為我們是 "Buy Now" 跳轉結帳，通常數量固定為 1，或者你可以保留數量選擇
+        // 這裡為了配合你的後端 /api/auction/buy-now，我們簡化為直接購買
         document.getElementById("bidSection").innerHTML = `
-        <input class = "inputBox" type = "number" id="buyAmount" value="1" min="1" max="${itemData.stock}">
-        <button id="buyBtn" class = 'btn'>Buy</button>
+        <button id="buyBtn" class='btn' style="width:100%; background-color:#28a745; color:white;">立即購買 (Buy Now)</button>
         `;
-        document.getElementById("buyAmount").addEventListener('change', (e) => {
-            let val = parseInt(e.target.value);
-            if (isNaN(val) || val < 1) val = 1;
-            if (val > itemData.stock) val = itemData.stock;
-            e.target.value = val;
-        });
+        
         document.getElementById("buyBtn").addEventListener('click', async () => {
+            if(!confirm('確定要立即購買此商品嗎？將前往結帳頁面。')) return;
+
             try {
-                const amt = document.getElementById("buyAmount").value;
-                const res = await fetch(`/api/data/auctions/${itemId}/buy/${amt}`, {
+                // 呼叫我們新寫的後端 API
+                const res = await fetch('/api/auction/buy-now', {
                     method: 'POST',
                     credentials: 'include',
-                    headers: {'Content-Type': 'application/json'}
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ itemId: itemData._id }) // 傳 itemId
                 });
 
                 const result = await res.json();
-                if (result.success) {
-                    alert(result.message || 'Purchase successful!');
-                    window.location.reload();
-                }else{
-                    alert(result.message || 'Purchase failed.');
+                
+                if (res.ok && result.success) {
+                    alert('商品已鎖定，正在前往安全結帳頁面...');
+                    // === 成功跳轉 ===
+                    window.location.href = '/checkout.html';
+                } else {
+                    alert(result.error || result.message || '購買失敗');
+                    if(result.error && result.error.includes('登入')) {
+                         window.location.href = '/login.html';
+                    }
                 }
-            }catch(err) {
-                alert('Network error, please try again.');
+            } catch(err) {
+                console.error(err);
+                alert('網路錯誤，請稍後再試。');
             }
         });
     }

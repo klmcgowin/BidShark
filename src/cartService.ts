@@ -6,155 +6,170 @@ const CART_COLLECTION = 'cart';
 const DEAL_COLLECTION = 'deal';
 const AUCTION_COLLECTION = 'auctionItems';
 
-// 取得某人的購物車內容
+// 定義收件資訊介面
+interface ShippingInfo {
+    name: string;
+    phone: string;
+    address: string;
+    method: string;
+}
+
+// 1. 取得購物車內容
 export async function getCartItems(userId: string) {
     const db = await connectDB();
     const cartCollection = db.collection(CART_COLLECTION);
-
-    // 1. 【關鍵修正】將字串 userId 轉為 ObjectId
-    // 如果你的 session 存的是字串，但 DB 存的是 ObjectId，這裡必須轉型
+    
     let userObjectId;
-    try {
-        userObjectId = new ObjectId(userId);
-    } catch (e) {
-        // 如果 userId 格式不對，直接回傳空陣列，避免崩潰
-        console.error("Invalid User ID in getCartItems:", userId);
-        return [];
-    }
+    try { userObjectId = new ObjectId(userId); } catch (e) { userObjectId = userId; }
 
     const cartItems = await cartCollection.aggregate([
-        {
-            $match: {
-                // 為了保險，使用 $or 同時比對 ObjectId 和 String 格式
-                // 這樣無論之前寫入的是哪種格式，都能撈得到
-                $or: [
-                    { userId: userObjectId },
-                    { userId: userId }
-                ]
-            }
-        },
-        {
-            $lookup: {
-                from: AUCTION_COLLECTION,
-                localField: 'itemId',
-                foreignField: '_id',
-                as: 'itemDetails'
-            }
-        },
-        // 2. 【關鍵修正】preserveNullAndEmptyArrays: true
-        // 這樣即使找不到關聯商品 (lookup 失敗)，購物車項目也不會消失，方便除錯
-        {
-            $unwind: {
-                path: '$itemDetails',
-                preserveNullAndEmptyArrays: true
-            }
-        },
+        { $match: { $or: [{ userId: userObjectId }, { userId: userId }] } },
+        { $lookup: { from: AUCTION_COLLECTION, localField: 'itemId', foreignField: '_id', as: 'itemDetails' } },
+        { $unwind: { path: '$itemDetails', preserveNullAndEmptyArrays: true } },
         {
             $project: {
-                _id: 1, // Cart ID
-                itemId: 1,
-                title: 1,
-                price: 1,
-                quantity: 1, 
-                // 3. 【關鍵修正】處理圖片陣列
-                // 嘗試抓 itemDetails.images 的第一張圖，如果沒有則 fallback 到 cart 內的 productImage
+                _id: 1, itemId: 1, title: 1, price: 1, quantity: 1,
                 productImage: {
                     $ifNull: [
-                        { $arrayElemAt: ["$itemDetails.thumbnails", 0] }, // 1. 試試縮圖
-                        { $arrayElemAt: ["$itemDetails.images", 0] },     // 2. 沒有縮圖就用大圖
-                        "$productImage",
-                        "/Image/default-item.jpg"
+                        { $arrayElemAt: ["$itemDetails.thumbnails", 0] },
+                        { $arrayElemAt: ["$itemDetails.images", 0] },
+                        "$productImage", "/Image/default-item.jpg"
                     ]
                 },
-                endTime: '$itemDetails.endTime'
+                endTime: '$itemDetails.endTime',
+                isDirectBuy: '$itemDetails.dSale'
             }
         }
     ]).toArray();
-
     return cartItems;
 }
 
-// 結帳：從 Cart 移到 Deal
-export async function checkout(userId: string, cartItemIds: string[]) {
+// 2. 直購加入購物車
+export async function addDirectBuyToCart(userId: string, itemId: string) {
+    const db = await connectDB();
+    const itemsCollection = db.collection(AUCTION_COLLECTION);
+    const cartCollection = db.collection(CART_COLLECTION);
+    
+    // A. 檢查商品
+    const item = await itemsCollection.findOne({ 
+        _id: new ObjectId(itemId), 
+        status: 'active' 
+    });
+
+    if (!item) throw new Error('商品不存在或已下架');
+    if (!item.dSale && !item.buyNowPrice) throw new Error('此商品不支援直接購買');
+
+    // B. 檢查庫存
+    if (item.dSale && item.stock <= 0) {
+        throw new Error('商品已售完');
+    }
+
+    // C. 避免重複加入
+    const existingCartItem = await cartCollection.findOne({
+        userId: new ObjectId(userId),
+        itemId: new ObjectId(itemId)
+    });
+
+    if (existingCartItem) {
+        return { message: 'Item already in cart' };
+    }
+
+    // D. 加入購物車
+    await cartCollection.insertOne({
+        userId: new ObjectId(userId),
+        itemId: new ObjectId(itemId),
+        title: item.title,
+        price: item.buyNowPrice || item.price,
+        quantity: 1,
+        addedAt: new Date(),
+        type: 'direct_buy',
+        productImage: item.images?.[0] || '/Image/default-item.jpg'
+    });
+
+    return { success: true };
+}
+
+// 3. 結帳 (包含收件資訊與付款方式)
+export async function checkout(
+    userId: string, 
+    cartItemIds: string[] | undefined, 
+    shippingInfo: ShippingInfo, 
+    paymentMethod: string
+) {
     const db = await connectDB();
     const cartCollection = db.collection(CART_COLLECTION);
     const dealsCollection = db.collection(DEAL_COLLECTION);
     const itemsCollection = db.collection(AUCTION_COLLECTION);
 
-    const objectIds = cartItemIds.map(id => new ObjectId(id));
     const userObjectId = new ObjectId(userId);
-
-    // 1. 撈出購物車內的這些項目
-    const cartItems = await cartCollection.find({
-        _id: { $in: objectIds },
-        $or: [{ userId: userObjectId }, { userId: userId }]
-    }).toArray();
-
-    if (cartItems.length === 0) {
-        throw new Error("No valid items found to checkout.");
+    
+    // 查詢要結帳的購物車項目
+    let query: any = { $or: [{ userId: userObjectId }, { userId: userId }] };
+    if (cartItemIds && cartItemIds.length > 0) {
+        const objectIds = cartItemIds.map(id => new ObjectId(id));
+        query._id = { $in: objectIds };
     }
+
+    const cartItems = await cartCollection.find(query).toArray();
+    if (cartItems.length === 0) throw new Error("無效的結帳請求：購物車為空或未選擇商品");
 
     const successfulDeals = [];
 
-    // 2. 逐一處理每個商品 (檢查庫存 -> 扣庫存 -> 建立訂單 -> 建立聊天)
     for (const cartItem of cartItems) {
-
-        // 取得該商品的最新庫存狀態
         const product = await itemsCollection.findOne({ _id: cartItem.itemId });
+        if (!product) continue; 
 
-        if (!product) continue; // 商品被刪了？跳過
-
-        // 如果是直購商品 (dSale: true)，需要檢查並扣除庫存
+        // === 庫存扣除 ===
         if (product.dSale) {
             const buyQty = cartItem.quantity || 1;
-
-            if (product.stock < buyQty) {
-                throw new Error(`Item "${product.title}" is out of stock.`);
-            }
-
-            // 扣除庫存
-            await itemsCollection.updateOne(
-                { _id: product._id },
-                { $inc: { stock: -buyQty } }
-            );
-
-            // 如果庫存歸零，設為 inactive (可選)
+            if (product.stock < buyQty) throw new Error(`商品 "${product.title}" 庫存不足`);
+            
+            await itemsCollection.updateOne({ _id: product._id }, { $inc: { stock: -buyQty } });
+            
             if (product.stock - buyQty <= 0) {
                 await itemsCollection.updateOne({ _id: product._id }, { $set: { status: 'inactive' } });
             }
         }
 
-        // 3. 準備訂單資料
+        // === 建立訂單 (包含收件人與付款資訊) ===
         const dealData = {
             itemId: cartItem.itemId,
             buyerId: userObjectId,
+            sellerId: product.sellerId ? new ObjectId(product.sellerId) : null,
             quantity: cartItem.quantity || 1,
-            individual_price: cartItem.price,
-            total_price: cartItem.price * (cartItem.quantity || 1),
-            purchaseDate: new Date(),
+            price: cartItem.price,
+            totalAmount: cartItem.price * (cartItem.quantity || 1),
             title: cartItem.title,
-            status: 'completed'
+            image: cartItem.productImage,
+            dealDate: new Date(),
+            status: 'paid',
+            
+            // --- 新增的資訊 ---
+            paymentMethod: paymentMethod, 
+            shippingInfo: {
+                name: shippingInfo.name,
+                phone: shippingInfo.phone,
+                address: shippingInfo.address,
+                method: shippingInfo.method,
+                shippingFee: shippingInfo.method === 'Express' ? 120 : 60
+            },
+            deliveryStatus: 'preparing'
         };
 
         const dealResult = await dealsCollection.insertOne(dealData);
-        successfulDeals.push(dealResult.insertedId);
+        successfulDeals.push(cartItem._id);
 
-        // 4. 建立買賣雙方聊天室
-        // 賣家: product.sellerId, 買家: userObjectId, 主題: 商品ID
+        // === 建立聊天室 ===
         if (product.sellerId) {
-            await establishChat(
-                product.sellerId.toString(),
-                userId,
-                product._id.toString()
-            );
+            try {
+                await establishChat(product.sellerId.toString(), userId, product._id.toString());
+            } catch (err) { console.error('Chat creation failed:', err); }
         }
     }
 
-    // 5. 從購物車移除已結帳的商品
+    // 移除已結帳的購物車項目
     if (successfulDeals.length > 0) {
-        await cartCollection.deleteMany({
-            _id: { $in: objectIds }
-        });
+        await cartCollection.deleteMany({ _id: { $in: successfulDeals } });
     }
 
     return { success: true, count: successfulDeals.length };

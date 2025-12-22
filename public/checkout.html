@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>結帳確認 | 安全支付</title>
+    <link rel="stylesheet" href="css/checkout.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') document.documentElement.classList.add('dark-mode');
+        })();
+    </script>
+</head>
+<body>
+    <div id="sidebar"></div>
+
+    <div class="main-layout">
+        <div class="checkout-container">
+            <div class="page-header">
+                <h1><i class="fa-solid fa-lock"></i> 安全結帳 Secure Checkout</h1>
+                <p>您的交易受到 SSL 256位元加密保護</p>
+            </div>
+
+            <div class="checkout-grid">
+                <div class="left-column">
+                    
+                    <section class="checkout-section">
+                        <div class="section-header">
+                            <h2><i class="fa-solid fa-location-dot"></i> 收件地址 Shipping Address</h2>
+                        </div>
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label>收件人姓名</label>
+                                <input type="text" id="receiverName" placeholder="真實姓名" required>
+                            </div>
+                            <div class="input-group">
+                                <label>手機號碼</label>
+                                <input type="tel" id="receiverPhone" placeholder="09xx-xxx-xxx" required>
+                            </div>
+                        </div>
+                        <div class="input-group full-width">
+                            <label>詳細地址</label>
+                            <input type="text" id="receiverAddress" placeholder="縣市/區域/街道/樓層" required>
+                        </div>
+                    </section>
+
+                    <section class="checkout-section">
+                        <div class="section-header">
+                            <h2><i class="fa-solid fa-box"></i> 訂單商品 Order Items</h2>
+                        </div>
+                        <div id="cartItemsList" class="cart-items-container">
+                            <div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> 載入中...</div>
+                        </div>
+                    </section>
+
+                    <section class="checkout-section">
+                        <div class="section-header">
+                            <h2><i class="fa-solid fa-truck"></i> 寄送方式 Delivery Method</h2>
+                        </div>
+                        <div class="shipping-options">
+                            <label class="radio-card selected">
+                                <input type="radio" name="shipping" value="60" checked>
+                                <div class="radio-content">
+                                    <span class="method-name">標準運送 (Standard)</span>
+                                    <span class="method-price">NT$60</span>
+                                </div>
+                                <div class="method-desc">預計 3-5 個工作天送達</div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="shipping" value="120">
+                                <div class="radio-content">
+                                    <span class="method-name">黑貓宅配 (Express)</span>
+                                    <span class="method-price">NT$120</span>
+                                </div>
+                                <div class="method-desc">隔日送達，專人簽收</div>
+                            </label>
+                        </div>
+                    </section>
+
+                    <section class="checkout-section">
+                        <div class="section-header">
+                            <h2><i class="fa-regular fa-credit-card"></i> 付款方式 Payment</h2>
+                        </div>
+                        
+                        <div class="payment-tabs">
+                            <button class="tab-btn active" data-target="credit-card">
+                                <i class="fa-brands fa-cc-visa"></i> 信用卡/簽帳卡
+                            </button>
+                            <button class="tab-btn" data-target="cod">
+                                <i class="fa-solid fa-money-bill-wave"></i> 貨到付款
+                            </button>
+                        </div>
+
+                        <div id="credit-card-form" class="payment-content active">
+                            <div class="card-visual-input">
+                                <div class="input-group full-width">
+                                    <label>卡號 Card Number</label>
+                                    <div class="icon-input">
+                                        <i class="fa-regular fa-credit-card"></i>
+                                        <input type="text" id="cc-number" placeholder="0000 0000 0000 0000" maxlength="19">
+                                    </div>
+                                    <div class="card-icons">
+                                        <i class="fa-brands fa-cc-visa" style="color:#1a1f71;"></i>
+                                        <i class="fa-brands fa-cc-mastercard" style="color:#eb001b;"></i>
+                                        <i class="fa-brands fa-cc-jcb" style="color:#007940;"></i>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="input-group">
+                                        <label>持卡人姓名 Holder Name</label>
+                                        <input type="text" id="cc-name" placeholder="YOUR NAME">
+                                    </div>
+                                    <div class="input-group">
+                                        <label>有效期限 (MM/YY)</label>
+                                        <input type="text" id="cc-expiry" placeholder="MM/YY" maxlength="5">
+                                    </div>
+                                    <div class="input-group">
+                                        <label>安全碼 CVV <i class="fa-solid fa-circle-question" title="卡片背後末三碼"></i></label>
+                                        <div class="icon-input">
+                                            <i class="fa-solid fa-lock"></i>
+                                            <input type="password" id="cc-cvv" placeholder="123" maxlength="3">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="secure-note"><i class="fa-solid fa-shield-halved"></i> 您的卡號資訊將經過加密處理，我們不會儲存您的完整卡號。</p>
+                        </div>
+
+                        <div id="cod-content" class="payment-content">
+                            <div class="cod-info">
+                                <i class="fa-solid fa-box-open"></i>
+                                <p>商品送達時，請直接支付現金給配送人員。</p>
+                                <p class="warning-text">※ 請確認收件資訊正確，以免投遞失敗。</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="right-column">
+                    <div class="summary-card">
+                        <h3>訂單摘要 Summary</h3>
+                        <div class="summary-row">
+                            <span>商品總計</span>
+                            <span id="subtotal">NT$0</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>運費</span>
+                            <span id="shippingFee">NT$60</span>
+                        </div>
+                        <div class="summary-divider"></div>
+                        <div class="summary-row total">
+                            <span>結帳總金額</span>
+                            <span id="grandTotal">NT$0</span>
+                        </div>
+                        
+                        <button id="placeOrderBtn" class="btn-primary-large">
+                            立即結帳 Place Order
+                        </button>
+
+                        <div class="trust-badges">
+                            <div class="badge"><i class="fa-solid fa-shield-check"></i> 買家保障</div>
+                            <div class="badge"><i class="fa-solid fa-rotate-left"></i> 7天鑑賞期</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="javascript/checkout.js"></script>
+</body>
+</html>
