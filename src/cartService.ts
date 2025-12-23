@@ -141,21 +141,32 @@ export async function checkout(
     const cartCollection = db.collection(CART_COLLECTION);
     const dealsCollection = db.collection(DEAL_COLLECTION);
     const itemsCollection = db.collection(AUCTION_COLLECTION);
-    const notifyCollection = db.collection(NOTIFICATION_COLLECTION); // 取得通知集合
+    const notifyCollection = db.collection(NOTIFICATION_COLLECTION);
 
     const userObjectId = new ObjectId(userId);
     
-    // 查詢要結帳的購物車項目
-    let query: any = { $or: [{ userId: userObjectId }, { userId: userId }] };
-    
-    // 如果有指定 cartItemIds，只結帳這些；否則結帳購物車內所有商品
-    if (cartItemIds && cartItemIds.length > 0) {
-        const objectIds = cartItemIds.map(id => new ObjectId(id));
-        query._id = { $in: objectIds };
+    // 強制檢查：必須提供 cartItemIds
+    if (!cartItemIds || cartItemIds.length === 0) {
+        throw new Error("結帳錯誤：未選擇任何商品");
     }
 
+    // 將字串 ID 轉為 ObjectId
+    const objectIds = cartItemIds.map(id => new ObjectId(id));
+
+    // 查詢條件改用 $and，確保只抓取 (是這個人的) AND (是這些ID的)
+    const query = {
+        $and: [
+            { $or: [{ userId: userObjectId }, { userId: userId }] },
+            { _id: { $in: objectIds } } // 強制過濾 ID
+        ]
+    };
+
     const cartItems = await cartCollection.find(query).toArray();
-    if (cartItems.length === 0) throw new Error("無效的結帳請求：購物車為空或未選擇商品");
+    
+    // 如果找不到資料 (例如 ID 不對或不是這個人的)，報錯
+    if (cartItems.length === 0) {
+        throw new Error("無效的結帳請求：找不到指定的商品");
+    }
 
     const successfulDeals = [];
 

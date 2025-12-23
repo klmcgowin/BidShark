@@ -132,7 +132,7 @@ async function loadBids() {
 
         for (const bid of bids) {
             const item = bid.auctionItem?.[0];
-            if (!item || item.status === 'inactive') continue;
+            if (!item || item.status !== 'active') continue;
             const itemId = String(item._id);
             let entry = itemMap.get(itemId);
             if (!entry) {
